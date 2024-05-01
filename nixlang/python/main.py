@@ -16,29 +16,28 @@ class Token:
         a = self.value.strip().replace("\"", "\\\"")
         if a == "":
             return str(self.type)
-        return str(self.type) + "\n" + a
+        return str(self.type) # + "\n" + a
 
     def __repr__(self) -> str:
         return str(self)
 
-# string = """
-# {
-#     array = [
-#         123,
-#         "qwer",
-#         '/home/user/file with space'
-#     ];
-#
-#     a.b = {
-#         f = 213;
-#     };
-# }
-# """
-
 
 string = """
-a = if true then 1 else 2
+{
+    array = [
+        1 + 2 * 3,
+        "qwer",
+        '/home/user/file with space'
+    ];
+
+    a.b = {
+        f = (1 + 2) * 3;
+    };
+}
 """
+# string = """
+# a = if true then 1 else 2
+# """
 
 type = 0
 
@@ -152,7 +151,7 @@ srules = {
     ],
 
     "E": [
-        ["UNDEFINED", "ASSIGN", "E1"],
+        ["Name", "ASSIGN", "E1"],
         ["E1"],
     ],
 
@@ -191,11 +190,22 @@ srules = {
         ["Array"],
         ["LBR", "E1", "RBR"],
         ["Name"],
+        ["Func_decl"],
+        ["Call"],
     ],
 
     "Name": [
         ["UNDEFINED"],
         ["Name", "DOT", "UNDEFINED"],
+    ],
+
+    "Func_decl": [
+        ["Name", "COLON", "E1"],
+        ["Set", "COLON", "E1"],
+    ],
+
+    "Call": [
+        ["Name", "E1"],
     ],
 }
 
@@ -241,7 +251,12 @@ while len(tokens) > 0:
     min_len = min([i[1] for i in suitable])
 
     for i in start_with:
-        if i[2][i[1]] == tokens[0].type and len(i[2]) > min_len:
+        # is terminal and suitable
+        if all([j.isupper() for j in i[2][i[1]]]) \
+           and i[2][i[1]] != tokens[0].type:
+            continue
+
+        if len(i[2]) > min_len:
             sw_new.append(i)
 
     # print("sw_new:", sw_new)

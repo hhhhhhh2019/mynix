@@ -13,8 +13,8 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +74 main.py
-badd +26 lexer_gen.py
+badd +259 main.py
+badd +34 lexer_gen.py
 badd +75 regex.py
 argglobal
 %argdel
@@ -137,7 +137,7 @@ setlocal spellfile=
 setlocal spelllang=en
 setlocal spelloptions=noplainbuffer
 setlocal statuscolumn=
-setlocal statusline=%<%#lualine_c_inactive#\ main.py\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ \ 74:17\ 
+setlocal statusline=%<%#lualine_c_inactive#\ main.py\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ 259:33\ 
 setlocal suffixesadd=.py
 setlocal swapfile
 setlocal synmaxcol=3000
@@ -163,12 +163,12 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 74 - ((5 * winheight(0) + 19) / 39)
+let s:l = 259 - ((21 * winheight(0) + 19) / 39)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 74
-normal! 017|
+keepjumps 259
+normal! 033|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf

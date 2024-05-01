@@ -26,6 +26,7 @@ tokens = [
     ["ELSE",         r"else",                        def_undef.copy()],
     ["THEN",         r"then",                        def_undef.copy()],
     ["SEMICOLON",    r";",                           set()],
+    ["COLON",        r":",                           set()],
     ["DOLLAR",       r"$",                           set()],
     ["PLUS",         r"\+",                          set()],
     ["MINUS",        r"-",                           set()],
