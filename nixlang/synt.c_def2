@@ -1,0 +1,117 @@
+#include "synt.h"
+#include "lexer.h"
+#include "utils.h"
+
+#include <stdlib.h>
+
+
+struct Synt_state {
+	Lexer_result lex;
+	unsigned int offset;
+	Stack(Node*) stack;
+};
+
+
+typedef struct {
+	enum Token_type result;
+	unsigned int count;
+	enum Token_type* tokens;
+} Rule;
+
+
+static Rule rules[] = {
+	{Start, 1, (enum Token_type[]){E}},
+
+	{Set, 2, (enum Token_type[]){LCBR, RCBR}},
+	{Set, 3, (enum Token_type[]){RCBR, Sargs, RCBR}},
+
+	{Array, 3, (enum Token_type[]){LSBR, Aargs, RSBR}},
+	{Array, 3, (enum Token_type[]){LSBR, E1, RSBR}},
+
+	{Aargs, 3, (enum Token_type[]){E1, COMMA, E1}},
+	{Aargs, 3, (enum Token_type[]){Aargs, COMMA, E1}},
+
+	{E, 3, (enum Token_type[]){Name, ASSIGN, E1}},
+	{E, 1, (enum Token_type[]){E1}},
+
+	{E1, 1, (enum Token_type[]){E2}},
+	{E1, 6, (enum Token_type[]){IF, E1, THEN, E1, ELSE, E1}},
+	
+	{E2, 3, (enum Token_type[]){E2, AMPERSAND, E3}},
+	{E2, 3, (enum Token_type[]){E2, CARET, E3}},
+	{E2, 3, (enum Token_type[]){E2, PIPE, E3}},
+	{E2, 2, (enum Token_type[]){EXCLAMATION, E2}},
+	{E2, 1, (enum Token_type[]){E3}},
+
+	{E3, 3, (enum Token_type[]){E3, PLUS, E4}},
+	{E3, 3, (enum Token_type[]){E3, MINUS, E4}},
+	{E3, 1, (enum Token_type[]){E4}},
+
+	{E4, 3, (enum Token_type[]){E4, STAR, E5}},
+	{E4, 3, (enum Token_type[]){E4, SLASH, E5}},
+	{E4, 1, (enum Token_type[]){E5}},
+
+	{E5, 1, (enum Token_type[]){DEC_NUMBER}},
+	{E5, 1, (enum Token_type[]){FLOAT_NUMBER}},
+	{E5, 1, (enum Token_type[]){STRING}},
+	{E5, 1, (enum Token_type[]){PATH}},
+	{E5, 1, (enum Token_type[]){TRUE}},
+	{E5, 1, (enum Token_type[]){FALSE}},
+	{E5, 1, (enum Token_type[]){Set}},
+	{E5, 1, (enum Token_type[]){Array}},
+	{E5, 3, (enum Token_type[]){LBR, E1, RBR}},
+	{E5, 1, (enum Token_type[]){Name}},
+	{E5, 1, (enum Token_type[]){Func_decl}},
+	{E5, 1, (enum Token_type[]){Call}},
+
+	{Name, 1, (enum Token_type[]){UNDEFINED}},
+	{Name, 3, (enum Token_type[]){Name, DOT, UNDEFINED}},
+
+	{Func_decl, 3, (enum Token_type[]){Name, COLON, E1}},
+	{Func_decl, 3, (enum Token_type[]){Set, COLON, E1}},
+
+	{Call, 1, (enum Token_type[]){Name, E1}},
+};
+
+
+Node* synt(Lexer_result lex) {
+	struct Synt_state state = {
+		.lex = lex,
+		.offset = 0,
+		.stack.values = malloc(0),
+		.stack.count = 0,
+	};
+
+
+	Node* start_node = empty_node();
+	start_node->token = lex.tokens[state.offset++];
+
+	stack_push(state.stack, start_node);
+
+
+	while (state.offset < lex.tokens_count) {
+		for (int i = 0; i < sizeof(rules) / sizeof(Rule); i++) {
+			for (int j = 0; j < rules[i].count; j++) {
+				
+			}
+		}
+	}
+
+
+	return stack_pop(state.stack);
+}
+
+
+void print_node(Node* node, int offset) {
+	for (int i = 0; i < offset; i++)
+		putc('\t', stdout);
+
+	if (node == NULL) {
+		printf("NULL\n");
+		return;
+	}
+
+	printf("%s\n", token_type_names[node->token.type]);
+	for (int i = 0; i < node->childs_count; i++)
+		print_node(node->childs[i], offset + 1);
+}

@@ -322,7 +322,7 @@ for i in dfa:
 
 # pprint(rules)
 
-if __name__ == "__main__" and False:
+if __name__ == "__main__":
     def get_id(ch, r) -> int:
         if ch == 256:
             ch = "_other"

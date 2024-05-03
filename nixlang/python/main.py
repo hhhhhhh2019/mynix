@@ -1,37 +1,19 @@
-from lexer_gen import rules
 # from synt_gen import srules
+from lexer import Token, lexer
 
 from pprint import pprint
-
-
-class Token:
-    value: str
-    type: str
-
-    def __init__(self, value: str, type: str) -> None:
-        self.value = value
-        self.type = type
-
-    def __str__(self):
-        a = self.value.strip().replace("\"", "\\\"")
-        if a == "":
-            return str(self.type)
-        return str(self.type) # + "\n" + a
-
-    def __repr__(self) -> str:
-        return str(self)
 
 
 string = """
 {
     array = [
         1 + 2 * 3,
-        "qwer",
+        "qwerty",
         '/home/user/file with space'
     ];
 
     a.b = {
-        f = (1 + 2) * 3;
+        f = func (1 + 2) * 3;
     };
 }
 """
@@ -39,43 +21,8 @@ string = """
 # a = if true then 1 else 2
 # """
 
-type = 0
 
-token = ""
-tokens = []
-
-state = 1
-
-while type < len(string):
-    c = string[type]
-
-    nstate = -1
-    otherid = -1
-
-    for rule in rules[state][0]:
-        if "_other" in rules[state][0][rule]:
-            otherid = rule
-
-        if c in rules[state][0][rule]:
-            nstate = rule
-
-    nstate = nstate if nstate != -1 else otherid
-
-    if nstate == -1:
-        print("rules error")
-        break
-    elif nstate == 0:
-        tokens.append(Token(token, rules[state][1]))
-        token = ""
-        state = 1
-    else:
-        token += c
-        type += 1
-        state = nstate
-
-
-tokens = [i for i in tokens if not i.type == "SPACE"] + \
-    [Token("EOI", "$")]
+tokens = lexer(string)
 
 
 # pprint(tokens)
@@ -87,7 +34,7 @@ class Node:
     parent: object
     id: int
 
-    def __init__(self, token: token, childs: list, parent):
+    def __init__(self, token: Token, childs: list, parent):
         self.token = token
         self.childs = childs
         self.parent = parent
@@ -192,6 +139,7 @@ srules = {
         ["Name"],
         ["Func_decl"],
         ["Call"],
+        ["EXCLAMATION", "E2"],
     ],
 
     "Name": [
