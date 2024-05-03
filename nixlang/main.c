@@ -4,19 +4,19 @@
 
 
 int main() {
-	char* data =
-		"{\n"
-		"  a.b = [\n"
-		"    123,\n"
-		"    \"qwerty\",\n"
-		"    '/path/with space/file'\n"
-		"  ];\n"
-
-		"  c = {\n"
-		"    a = foo.bar 1 + 2 * 3;\n"
-		"    b = f (1 + 2) * 3;\n"
-		"  };\n"
-		"}\n";
+	// char* data =
+	// 	"{\n"
+	// 	"  a.b = [\n"
+	// 	"    123,\n"
+	// 	"    \"qwerty\",\n"
+	// 	"    '/path/with space/file'\n"
+	// 	"  ];\n"
+	//
+	// 	"  c = {\n"
+	// 	"    a = foo.bar 1 + 2 * 3;\n"
+	// 	"    b = f (1 + 2) * 3;\n"
+	// 	"  };\n"
+	// 	"}\n";
 	
 	// char* data =
 	// 	"{"
@@ -25,6 +25,29 @@ int main() {
 	// 	"}"
 	// 	"\n"
 	// ;
+	
+
+	char* data =
+		"input: {"
+			"system.host = \"nixhost\";"
+			"system.arch = \"myarch\";"
+			"system.packages = ["
+				"input.pkgs.htop,"
+				"input.pkgs.git,"
+				"input.pkgs.zsh,"
+			"];"
+			"system.users = {"
+				"alex = {"
+					"groups = [ wheel users alex ];"
+					"home = '/home/alex';"
+					"shell = input.pkgs.zsh;"
+					"modules = ["
+						"'./users/alex/alex.nix'"
+					"];"
+				"};"
+			"};"
+		"}"
+		"\n";
 
 	Lexer_result lexer_res = lexer(data, "file");
 

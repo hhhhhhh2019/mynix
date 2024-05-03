@@ -152,6 +152,10 @@ static Node* state_Name_Func_decl_Call_Set(struct Synt_state* state) {
 			UNDEFINED,
 		});
 
+		require(state, 1, (enum Token_type[]){
+			COLON
+		});
+
 		Node* op = empty_node();
 		op->token.type = Func_decl;
 
@@ -164,6 +168,10 @@ static Node* state_Name_Func_decl_Call_Set(struct Synt_state* state) {
 	if (left != NULL && state->lex.tokens[state->offset].type == COLON) {
 		Node* op = empty_node();
 		op->token.type = Func_decl;
+
+		require(state, 1, (enum Token_type[]){
+			COLON
+		});
 
 		append_node(op, left);
 		append_node(op, state_E1(state));

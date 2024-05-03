@@ -13,10 +13,10 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +462 synt.c
+badd +216 synt.c
 badd +1 python/main.py
 badd +48 include/lexer.h
-badd +44 main.c
+badd +37 main.c
 badd +43 include/synt.h
 badd +0 synt.c_def
 badd +233 lexer.c
@@ -25,17 +25,24 @@ argglobal
 %argdel
 $argadd synt.c
 $argadd synt.c_def
-edit lexer.c
+edit main.c
+wincmd t
+let s:save_winminheight = &winminheight
+let s:save_winminwidth = &winminwidth
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
 argglobal
-if bufexists(fnamemodify("lexer.c", ":p")) | buffer lexer.c | else | edit lexer.c | endif
+if bufexists(fnamemodify("main.c", ":p")) | buffer main.c | else | edit main.c | endif
 if &buftype ==# 'terminal'
-  silent file lexer.c
+  silent file main.c
 endif
 balt synt.c
+nnoremap <buffer> <silent> grr :lua require'nvim-treesitter-refactor.smart_rename'.smart_rename(6)
 let s:cpo_save=&cpo
 set cpo&vim
 nnoremap <buffer> <silent> grÞ <Nop>
-nnoremap <buffer> <silent> grr :lua require'nvim-treesitter-refactor.smart_rename'.smart_rename(91)
 let &cpo=s:cpo_save
 unlet s:cpo_save
 setlocal keymap=
@@ -114,7 +121,7 @@ setlocal modifiable
 setlocal nrformats=bin,hex
 setlocal number
 setlocal numberwidth=4
-setlocal omnifunc=v:lua.vim.lsp.omnifunc
+setlocal omnifunc=ccomplete#Complete
 setlocal path=
 setlocal nopreserveindent
 setlocal nopreviewwindow
@@ -138,7 +145,7 @@ setlocal spellfile=
 setlocal spelllang=en
 setlocal spelloptions=noplainbuffer
 setlocal statuscolumn=
-setlocal statusline=%<%#lualine_c_inactive#\ lexer.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ 233:57\ 
+setlocal statusline=%#lualine_a_command#\ COMMAND\ %#lualine_transitional_lualine_a_command_to_lualine_b_command#%#lualine_b_command#\ main.c\ %#lualine_b_filetype_DevIconDefault_command#\ \ %#lualine_b_command#c\ %#lualine_b_command#%#lualine_b_diagnostics_warn_command#\ ����\ 1\ %#lualine_transitional_lualine_b_diagnostics_warn_command_to_lualine_c_normal#%<%#lualine_c_normal#\ \ master\ %#lualine_c_diff_added_command#\ +23\ %#lualine_c_diff_modified_command#~13\ %#lualine_c_normal#%=%#lualine_transitional_lualine_a_command_to_lualine_c_normal#%#lualine_a_command#\ \ 37:24\ %#lualine_a_command#\ 54%%\ 
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
@@ -164,12 +171,14 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 233 - ((21 * winheight(0) + 19) / 39)
+6
+normal! zo
+let s:l = 37 - ((18 * winheight(0) + 19) / 38)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 233
-normal! 057|
+keepjumps 37
+normal! 024|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
@@ -177,6 +186,8 @@ endif
 unlet! s:wipebuf
 set winheight=1 winwidth=20
 let &shortmess = s:shortmess_save
+let &winminheight = s:save_winminheight
+let &winminwidth = s:save_winminwidth
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
