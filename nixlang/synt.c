@@ -75,6 +75,34 @@ static Rule rules[] = {
 	{
 		.count = 3,
 		.tokens = (enum Token_type[]){
+			LSBR, -1,
+			Aargs, RSBR,
+			RSBR, -1,
+		},
+		.result = Array,
+	},
+
+	{
+		.count = 1,
+		.tokens = (enum Token_type[]){
+			E, RSBR,
+		},
+		.result = Aargs,
+	},
+
+	{
+		.count = 3,
+		.tokens = (enum Token_type[]){
+			E, COMMA,
+			COMMA, -1,
+			Aargs, -1,
+		},
+		.result = Aargs,
+	},
+
+	{
+		.count = 3,
+		.tokens = (enum Token_type[]){
 			E1, STAR,
 			STAR, -1,
 			E1, -1,

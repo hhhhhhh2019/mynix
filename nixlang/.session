@@ -13,15 +13,15 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +54 main.c
-badd +129 synt.c
+badd +53 main.c
+badd +159 synt.c
 badd +42 include/utils.h
 badd +58 lexer.c
 argglobal
 %argdel
-edit main.c
+edit synt.c
 argglobal
-balt synt.c
+balt main.c
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -122,7 +122,7 @@ setlocal spellfile=
 setlocal spelllang=en
 setlocal spelloptions=noplainbuffer
 setlocal statuscolumn=
-setlocal statusline=%<%#lualine_c_inactive#\ main.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ \ 54:1\ \ 
+setlocal statusline=%<%#lualine_c_inactive#\ synt.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ 159:19\ 
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
@@ -148,12 +148,160 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 54 - ((20 * winheight(0) + 19) / 39)
+22
+normal! zo
+25
+normal! zo
+29
+normal! zo
+34
+normal! zo
+39
+normal! zo
+45
+normal! zo
+45
+normal! zo
+49
+normal! zo
+52
+normal! zo
+55
+normal! zo
+49
+normal! zo
+52
+normal! zo
+55
+normal! zo
+64
+normal! zo
+65
+normal! zo
+67
+normal! zo
+75
+normal! zo
+77
+normal! zo
+83
+normal! zo
+85
+normal! zo
+93
+normal! zo
+95
+normal! zo
+101
+normal! zo
+103
+normal! zo
+111
+normal! zo
+112
+normal! zo
+124
+normal! zo
+129
+normal! zo
+135
+normal! zo
+143
+normal! zo
+147
+normal! zo
+153
+normal! zo
+169
+normal! zo
+170
+normal! zo
+173
+normal! zo
+178
+normal! zo
+183
+normal! zo
+188
+normal! zo
+189
+normal! zo
+196
+normal! zo
+202
+normal! zo
+207
+normal! zo
+210
+normal! zo
+64
+normal! zo
+65
+normal! zo
+65
+normal! zo
+75
+normal! zo
+103
+normal! zo
+109
+normal! zo
+111
+normal! zo
+119
+normal! zo
+121
+normal! zo
+129
+normal! zo
+131
+normal! zo
+139
+normal! zo
+140
+normal! zo
+152
+normal! zo
+161
+normal! zo
+164
+normal! zo
+169
+normal! zo
+175
+normal! zo
+181
+normal! zo
+184
+normal! zo
+200
+normal! zo
+201
+normal! zo
+204
+normal! zo
+209
+normal! zo
+214
+normal! zo
+219
+normal! zo
+220
+normal! zo
+227
+normal! zo
+233
+normal! zo
+238
+normal! zo
+241
+normal! zo
+let s:l = 159 - ((21 * winheight(0) + 19) / 39)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 54
-normal! 0
+keepjumps 159
+normal! 019|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf

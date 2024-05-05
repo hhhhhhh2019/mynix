@@ -50,7 +50,7 @@ int main() {
 	// 	"}"
 	// 	"\n";
 	
-	char* data = "1 + 2 * 3 + 4\n";
+	char* data = "[1 + 2 * 3, 4, 5]\n";
 
 	Lexer_result lexer_res = lexer(data, "file");
 
