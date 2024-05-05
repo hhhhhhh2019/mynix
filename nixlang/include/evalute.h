@@ -8,17 +8,25 @@
 enum Object_type {
 	OBJECT_NUMBER,
 	OBJECT_FLOAT_NUMBER,
+	OBJECT_BOOLEAN,
 	OBJECT_STRING,
 	OBJECT_PATH,
 	OBJECT_ARRAY,
 	OBJECT_SET,
 	OBJECT_FUNCTION,
 	OBJECT_VARIABLE,
+	OBJECT_VARIABLE_POINTER,
 	OBJECT_OPERATION,
 };
 
 
 enum Op_type {
+	OP_EQ,
+	OP_NEQ,
+	OP_LESS,
+	OP_ELESS,
+	OP_MORE,
+	OP_EMORE,
 	OP_SUM,
 	OP_SUB,
 	OP_MUL,
@@ -50,6 +58,10 @@ typedef struct {
 } Object_float;
 
 typedef struct {
+	char value;
+} Object_boolean;
+
+typedef struct {
 	char* value;
 } Object_path;
 
@@ -58,7 +70,7 @@ typedef struct {
 } Object_string;
 
 typedef struct {
-	Object* argument;
+	char* argument_name;
 	Object* body;
 } Object_function;
 
@@ -68,10 +80,20 @@ typedef struct {
 } Object_variable;
 
 typedef struct {
+	char* name;
+} Object_var_pointer;
+
+typedef struct {
 	enum Op_type type;
 	unsigned int count;
 	Object** args;
 } Object_operation;
+
+
+extern Object** variables;
+extern unsigned int variables_count;
+
+void init_def_vars();
 
 
 Object* node_to_object(Node*);

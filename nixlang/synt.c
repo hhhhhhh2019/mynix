@@ -61,6 +61,7 @@ static Node* state_E3                      (struct Synt_state*);
 static Node* state_E3_                     (struct Synt_state*);
 static Node* state_E4                      (struct Synt_state*);
 static Node* state_E4_                     (struct Synt_state*);
+static Node* state_E5                      (struct Synt_state*);
 static Node* state_Name                    (struct Synt_state*);
 static Node* state_Name_                   (struct Synt_state*);
 static Node* state_Name_Func_decl_Call_Set (struct Synt_state*);
@@ -188,13 +189,11 @@ static Node* state_Name_Func_decl_Call_Set(struct Synt_state* state) {
 
 	left = state_Name(state);
 
-	if (match(state, 11, (enum Token_type[]){
+	if (match(state, 9, (enum Token_type[]){
 		DEC_NUMBER,
 		FLOAT_NUMBER,
 		STRING,
 		PATH,
-		TRUE,
-		FALSE,
 		LCBR,
 		LSBR,
 		LBR,
@@ -238,9 +237,9 @@ static Node* state_Array(struct Synt_state* state) {
 }
 
 
-static Node* state_E4(struct Synt_state* state) {
-	if (match(state, 6, (enum Token_type[]){
-		DEC_NUMBER, FLOAT_NUMBER, STRING, PATH, TRUE, FALSE,
+static Node* state_E5(struct Synt_state* state) {
+	if (match(state, 4, (enum Token_type[]){
+		DEC_NUMBER, FLOAT_NUMBER, STRING, PATH,
 	})) {
 		Node* node = empty_node();
 		node->token = state->lex.tokens[state->offset++];
@@ -276,9 +275,48 @@ static Node* state_E4(struct Synt_state* state) {
 }
 
 
-static Node* state_E3_(struct Synt_state* state) {
+static Node* state_E4_(struct Synt_state* state) {
 	Token* top = match(state, 2, (enum Token_type[]){
 		STAR, SLASH,
+	});
+
+	if (top == NULL)
+		return NULL;
+
+	state->offset++;
+
+	Node* op = empty_node();
+	op->token = *top;
+
+	append_node(op, state_E4(state));
+
+	return op;
+}
+
+
+static Node* state_E4(struct Synt_state* state) {
+	Node* left = state_E5(state);
+	Node* op = state_E4_(state);
+
+	if (op == NULL)
+		return left;
+
+	append_node(op, left);
+
+	Node* op2;
+
+	while ((op2 = state_E4_(state)) != NULL) {
+		append_node(op2, op);
+		op = op2;
+	}
+
+	return op;
+}
+
+
+static Node* state_E3_(struct Synt_state* state) {
+	Token* top = match(state, 2, (enum Token_type[]){
+		PLUS, MINUS,
 	});
 
 	if (top == NULL)
@@ -316,8 +354,8 @@ static Node* state_E3(struct Synt_state* state) {
 
 
 static Node* state_E2_(struct Synt_state* state) {
-	Token* top = match(state, 2, (enum Token_type[]){
-		PLUS, MINUS,
+	Token* top = match(state, 3, (enum Token_type[]){
+		AMPERSAND, CARET, PIPE,
 	});
 
 	if (top == NULL)
@@ -355,8 +393,8 @@ static Node* state_E2(struct Synt_state* state) {
 
 
 static Node* state_E1_(struct Synt_state* state) {
-	Token* top = match(state, 3, (enum Token_type[]){
-		AMPERSAND, CARET, PIPE,
+	Token* top = match(state, 6, (enum Token_type[]){
+		EQUALS, NOT_EQUALS, MORE_EQUALS, MORE, LESS_EQUALS, LESS,
 	});
 
 	if (top == NULL)

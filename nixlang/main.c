@@ -50,19 +50,19 @@ int main() {
 	// 	"}"
 	// 	"\n";
 	
-	char* data = "1 + 2 * (3 + 4)\n";
+	char* data = "1 < 1\n";
 
 	Lexer_result lexer_res = lexer(data, "file");
 
 	// for (int i = 0; i < lexer_res.tokens_count; i++) {
-	// 	LOG("%lu:%lu %s\n", 
+	// 	LOG("%lu:%lu %s\n",
 	// 		lexer_res.tokens[i].line,
 	// 		lexer_res.tokens[i].column,
 	// 		token_type_names[lexer_res.tokens[i].type]);
 	// }
 
 	Node* root = synt(lexer_res);
-	// print_node(root, 0);
+	print_node(root, 0);
 	
 	// printf("digraph 1 {\n");
 	// index_node(root, 0);
@@ -70,6 +70,11 @@ int main() {
 	// printf("}\n");
 	
 	Object* oroot = node_to_object(root);
-
 	print_object(oroot, 0);
+
+	init_def_vars();
+
+	Object* eval = evalute(oroot);
+
+	print_object(eval, 0);
 }

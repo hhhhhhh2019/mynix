@@ -48,10 +48,12 @@ tokens = [
     ["ASSIGN",       r"=",                           set()],
     ["EQUALS",       r"==",                          set()],
     ["NOT_EQUALS",   r"!=",                          set()],
+    ["LESS",         r"<",                           set()],
     ["LESS_EQUALS",  r"<=",                          set()],
+    ["MORE",         r">",                           set()],
     ["MORE_EQUALS",  r">=",                          set()],
-    ["TRUE",         r"true",                        def_undef.copy()],
-    ["FALSE",        r"false",                       def_undef.copy()],
+    # ["TRUE",         r"true",                        def_undef.copy()],
+    # ["FALSE",        r"false",                       def_undef.copy()],
 ]
 
 nfa = {
