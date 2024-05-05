@@ -7,7 +7,7 @@ from pprint import pprint
 string = """
 {
     array = [
-        1 + 2 * 3,
+        -1 + 2 * 3,
         "qwerty",
         '/home/user/file with space'
     ];
@@ -25,7 +25,8 @@ string = """
 tokens = lexer(string)
 
 
-# pprint(tokens)
+pprint(tokens)
+exit()
 
 
 class Node:

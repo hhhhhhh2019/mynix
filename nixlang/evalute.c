@@ -971,44 +971,44 @@ static Object* evalute_not(Object* arg) {
 
 static Object* evalute_op(Object_operation* op) {
 	if (op->type == OP_EQ)
-		return evalute_eq(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_eq(evalute(op->args[1]),
+		                  evalute(op->args[0]));
 	if (op->type == OP_NEQ)
-		return evalute_neq(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_neq(evalute(op->args[1]),
+		                   evalute(op->args[0]));
 	if (op->type == OP_LESS)
-		return evalute_less(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_less(evalute(op->args[1]),
+		                    evalute(op->args[0]));
 	if (op->type == OP_ELESS)
-		return evalute_eless(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_eless(evalute(op->args[1]),
+		                    evalute(op->args[0]));
 	if (op->type == OP_MORE)
-		return evalute_more(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_more(evalute(op->args[1]),
+		                    evalute(op->args[0]));
 	if (op->type == OP_EMORE)
-		return evalute_emore(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_emore(evalute(op->args[1]),
+		                    evalute(op->args[0]));
 	if (op->type == OP_SUM)
-		return evalute_sum(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_sum(evalute(op->args[1]),
+		                   evalute(op->args[0]));
 	if (op->type == OP_SUB)
-		return evalute_sub(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_sub(evalute(op->args[1]),
+		                   evalute(op->args[0]));
 	if (op->type == OP_MUL)
-		return evalute_mul(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_mul(evalute(op->args[1]),
+		                   evalute(op->args[0]));
 	if (op->type == OP_DIV)
-		return evalute_div(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_div(evalute(op->args[1]),
+		                   evalute(op->args[0]));
 	if (op->type == OP_XOR)
-		return evalute_xor(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_xor(evalute(op->args[1]),
+		                   evalute(op->args[0]));
 	if (op->type == OP_AND)
-		return evalute_and(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_and(evalute(op->args[1]),
+		                   evalute(op->args[0]));
 	if (op->type == OP_OR)
-		return evalute_or(evalute(op->args[0]),
-		                   evalute(op->args[1]));
+		return evalute_or(evalute(op->args[1]),
+		                   evalute(op->args[0]));
 	if (op->type == OP_NOT)
 		return evalute_not(evalute(op->args[0]));
 	return NULL;

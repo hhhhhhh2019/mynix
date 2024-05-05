@@ -50,7 +50,7 @@ int main() {
 	// 	"}"
 	// 	"\n";
 	
-	char* data = "1 < 1\n";
+	char* data = "-1 < 1\n";
 
 	Lexer_result lexer_res = lexer(data, "file");
 
@@ -62,7 +62,7 @@ int main() {
 	// }
 
 	Node* root = synt(lexer_res);
-	print_node(root, 0);
+	// print_node(root, 0);
 	
 	// printf("digraph 1 {\n");
 	// index_node(root, 0);
