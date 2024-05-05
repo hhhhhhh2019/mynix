@@ -14,6 +14,7 @@ typedef struct Node {
 	int childs_count;
 	struct Node** childs;
 	unsigned long id;
+	enum Token_type next_token;
 } Node;
 
 

@@ -50,7 +50,7 @@ int main() {
 	// 	"}"
 	// 	"\n";
 	
-	char* data = "-1 < 1\n";
+	char* data = "1 + 2 * 3 + 4\n";
 
 	Lexer_result lexer_res = lexer(data, "file");
 
@@ -64,17 +64,17 @@ int main() {
 	Node* root = synt(lexer_res);
 	// print_node(root, 0);
 	
-	// printf("digraph 1 {\n");
-	// index_node(root, 0);
-	// node_to_dot(root);
-	// printf("}\n");
+	printf("digraph 1 {\n");
+	index_node(root, 0);
+	node_to_dot(root);
+	printf("}\n");
 	
-	Object* oroot = node_to_object(root);
-	print_object(oroot, 0);
-
-	init_def_vars();
-
-	Object* eval = evalute(oroot);
-
-	print_object(eval, 0);
+	// Object* oroot = node_to_object(root);
+	// print_object(oroot, 0);
+	//
+	// init_def_vars();
+	//
+	// Object* eval = evalute(oroot);
+	//
+	// print_object(eval, 0);
 }

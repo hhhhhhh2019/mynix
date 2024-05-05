@@ -2,481 +2,170 @@
 #include "lexer.h"
 #include "utils.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 
-struct Synt_state {
+typedef struct {
 	Lexer_result lex;
 	unsigned int offset;
+	Stack(Node*) stack;
+} Synt_state;
+
+
+typedef struct {
+	int count;
+	enum Token_type* tokens;
+	enum Token_type result;
+} Rule;
+
+
+static int check_rule(Synt_state* state, Node* result, Rule rule) {
+	int max_len = -1;
+
+	for (int i = 0; i <
+	    min(state->stack.count, rule.count); i++) {
+		char ok = 1;
+
+		for (int j = 0; j <= i; j++) {
+			Node* node = state->stack.values[
+				state->stack.count - 1 - i + j
+			];
+
+			if (rule.tokens[j * 2 + 1] != -1 && rule.tokens[j * 2 + 1] != node->next_token) {
+				ok = 0;
+				continue;
+			}
+
+			if (node->token.type != rule.tokens[j * 2 + 0]) {
+				ok = 0;
+				continue;
+			}
+		}
+
+		if (ok)
+			max_len = i + 1;
+	}
+
+	if (max_len == -1)
+		return max_len;
+
+	if (max_len == rule.count) {
+		result->token.type = rule.result;
+
+		for (int i = 0; i < rule.count; i++)
+			append_node(result, stack_pop(state->stack));
+	}
+
+	return rule.count - max_len;
+}
+
+
+
+static Rule rules[] = {
+	{
+		.count = 3,
+		.tokens = (enum Token_type[]){
+			E, PLUS,
+			PLUS, -1,
+			E, -1,
+		},
+		.result = E,
+	},
+
+	{
+		.count = 3,
+		.tokens = (enum Token_type[]){
+			E1, STAR,
+			STAR, -1,
+			E1, -1,
+		},
+		.result = E1,
+	},
+
+	{
+		.count = 1,
+		.tokens = (enum Token_type[]){
+			E1, -1,
+		},
+		.result = E,
+	},
+
+	{
+		.count = 1,
+		.tokens = (enum Token_type[]){
+			E2, -1,
+		},
+		.result = E1,
+	},
+
+	{
+		.count = 1,
+		.tokens = (enum Token_type[]){
+			DEC_NUMBER, -1,
+		},
+		.result = E2,
+	},
 };
-
-
-static Token* match(struct Synt_state* state, int count, enum Token_type types[]) {
-	if (state->offset >= state->lex.tokens_count)
-		return 0;
-
-	for (int i = 0; i < count; i++) {
-		if (state->lex.tokens[state->offset].type == types[i])
-			return &state->lex.tokens[state->offset];
-	}
-	return 0;
-};
-
-
-static Token* require(struct Synt_state* state, int count, enum Token_type types[]) {
-	Token* t = match(state, count, types);
-	if (t != NULL) {
-		state->offset++;
-		return t;
-	}
-
-	ERROR("%s:%lu:%lu\n",
-		 state->lex.tokens[state->offset].filename,
-		 state->lex.tokens[state->offset].line,
-		 state->lex.tokens[state->offset].column
-	);
-
-	exit(1);
-
-	return 0;
-}
-
-
-static Node* state_Set                     (struct Synt_state*);
-static Node* state_Set_                    (struct Synt_state*);
-static Node* state_Sargs                   (struct Synt_state*);
-static Node* state_Sargs_                  (struct Synt_state*);
-static Node* state_Array                   (struct Synt_state*);
-static Node* state_Array_                  (struct Synt_state*);
-static Node* state_Aargs                   (struct Synt_state*);
-static Node* state_Aargs_                  (struct Synt_state*);
-static Node* state_E                       (struct Synt_state*);
-static Node* state_E_                      (struct Synt_state*);
-static Node* state_E1                      (struct Synt_state*);
-static Node* state_E1_                     (struct Synt_state*);
-static Node* state_E2                      (struct Synt_state*);
-static Node* state_E2_                     (struct Synt_state*);
-static Node* state_E3                      (struct Synt_state*);
-static Node* state_E3_                     (struct Synt_state*);
-static Node* state_E4                      (struct Synt_state*);
-static Node* state_E4_                     (struct Synt_state*);
-static Node* state_E5                      (struct Synt_state*);
-static Node* state_Name                    (struct Synt_state*);
-static Node* state_Name_                   (struct Synt_state*);
-static Node* state_Name_Func_decl_Call_Set (struct Synt_state*);
-
-
-static Node* state_Name_(struct Synt_state* state) {
-	if (match(state, 1, (enum Token_type[]){
-		DOT,
-	}) == 0) return NULL;
-
-	Node* op = empty_node();
-	op->token = state->lex.tokens[state->offset++];
-
-	append_node(op, state_Name(state));
-
-	return op;
-}
-
-
-static Node* state_Name(struct Synt_state* state) {
-	Token* tleft = require(state, 1, (enum Token_type[]){
-		UNDEFINED,
-	});
-
-	if (tleft == NULL)
-		return NULL;
-
-	// if (tleft->type == LCBR) {
-	//
-	// }
-	
-	Node* left = empty_node();
-	left->token = *tleft;
-	
-	Node* op = state_Name_(state);
-
-	if (op == NULL)
-		return left;
-
-	append_node(op, left);
-
-	return op;
-}
-
-
-static Node* state_Set(struct Synt_state* state) {
-	if (require(state, 1, (enum Token_type[]){
-		LCBR
-	}) == 0)
-		return NULL;
-
-	Node* root = empty_node();
-	root->token.type = Set;
-	
-	while (state->lex.tokens[state->offset].type != RCBR) {
-		Node* name = state_Name(state);
-		Node* op = empty_node();
-		op->token = *require(state, 1, (enum Token_type[]){ASSIGN});
-
-		append_node(op, name);
-		append_node(op, state_E1(state));
-
-		append_node(root, op);
-
-		if (require(state, 1, (enum Token_type[]){SEMICOLON}) == 0)
-			break;
-	}
-
-	if (require(state, 1, (enum Token_type[]){
-		RCBR
-	}) == 0)
-		return NULL;
-
-	return root;
-}
-
-
-static Node* state_Name_Func_decl_Call_Set(struct Synt_state* state) {
-	Node* left = NULL;
-
-	if (match(state, 1, (enum Token_type[]){
-		LCBR,
-	}))
-		left = state_Set(state);
-
-	if (left == NULL && state->lex.tokens[state->offset+1].type == COLON) {
-		left = empty_node();
-		left->token = *require(state, 1, (enum Token_type[]){
-			UNDEFINED,
-		});
-
-		require(state, 1, (enum Token_type[]){
-			COLON
-		});
-
-		Node* op = empty_node();
-		op->token.type = Func_decl;
-
-		append_node(op, left);
-		append_node(op, state_E1(state));
-
-		return op;
-	}
-
-	if (left != NULL && state->lex.tokens[state->offset].type == COLON) {
-		Node* op = empty_node();
-		op->token.type = Func_decl;
-
-		require(state, 1, (enum Token_type[]){
-			COLON
-		});
-
-		append_node(op, left);
-		append_node(op, state_E1(state));
-
-		return op;
-	}
-
-	if (left != NULL)
-		return left;
-
-	// if (state->lex.tokens[state->offset].type == UNDEFINED &&
-	//     state->lex.tokens[state->offset+1].type == DOT)
-	// 	left = state_Name(state);
-
-	left = state_Name(state);
-
-	if (match(state, 9, (enum Token_type[]){
-		DEC_NUMBER,
-		FLOAT_NUMBER,
-		STRING,
-		PATH,
-		LCBR,
-		LSBR,
-		LBR,
-		UNDEFINED,
-		EXCLAMATION,
-		// IF,
-	})) {
-		Node* op = empty_node();
-		op->token.type = Call;
-
-		append_node(op, left);
-		append_node(op, state_E1(state));
-
-		return op;
-	}
-
-	return left;
-}
-
-
-static Node* state_Array(struct Synt_state* state) {
-	if (require(state, 1, (enum Token_type[]){
-		LSBR
-	}) == 0) return NULL;
-
-	Node* root = empty_node();
-	root->token.type = Array;
-
-	while (state->lex.tokens[state->offset].type != RSBR) {
-		append_node(root, state_E1(state));
-		if (match(state, 1, (enum Token_type[]){COMMA}) == 0)
-			break;
-		state->offset++;
-	}
-
-	if (require(state, 1, (enum Token_type[]){
-		RSBR
-	}) == 0) return NULL;
-
-	return root;
-}
-
-
-static Node* state_E5(struct Synt_state* state) {
-	if (match(state, 4, (enum Token_type[]){
-		DEC_NUMBER, FLOAT_NUMBER, STRING, PATH,
-	})) {
-		Node* node = empty_node();
-		node->token = state->lex.tokens[state->offset++];
-
-		return node;
-	}
-
-	if (state->lex.tokens[state->offset].type == LBR) {
-		state->offset++;
-		Node* node = state_E1(state);
-		require(state, 1, (enum Token_type[]){RBR});
-		return node;
-	}
-
-	if (state->lex.tokens[state->offset].type == LSBR) {
-		return state_Array(state);
-	}
-
-	if (state->lex.tokens[state->offset].type == EXCLAMATION) {
-		Node* op = empty_node();
-		op->token = state->lex.tokens[state->offset++];
-		append_node(op, state_E1(state));
-		return op;
-	}
-
-	if (match(state, 2, (enum Token_type[]){
-		LCBR, UNDEFINED
-	})) {
-		return state_Name_Func_decl_Call_Set(state);
-	}
-
-	return NULL;
-}
-
-
-static Node* state_E4_(struct Synt_state* state) {
-	Token* top = match(state, 2, (enum Token_type[]){
-		STAR, SLASH,
-	});
-
-	if (top == NULL)
-		return NULL;
-
-	state->offset++;
-
-	Node* op = empty_node();
-	op->token = *top;
-
-	append_node(op, state_E4(state));
-
-	return op;
-}
-
-
-static Node* state_E4(struct Synt_state* state) {
-	Node* left = state_E5(state);
-	Node* op = state_E4_(state);
-
-	if (op == NULL)
-		return left;
-
-	append_node(op, left);
-
-	Node* op2;
-
-	while ((op2 = state_E4_(state)) != NULL) {
-		append_node(op2, op);
-		op = op2;
-	}
-
-	return op;
-}
-
-
-static Node* state_E3_(struct Synt_state* state) {
-	Token* top = match(state, 2, (enum Token_type[]){
-		PLUS, MINUS,
-	});
-
-	if (top == NULL)
-		return NULL;
-
-	state->offset++;
-
-	Node* op = empty_node();
-	op->token = *top;
-
-	append_node(op, state_E3(state));
-
-	return op;
-}
-
-
-static Node* state_E3(struct Synt_state* state) {
-	Node* left = state_E4(state);
-	Node* op = state_E3_(state);
-
-	if (op == NULL)
-		return left;
-
-	append_node(op, left);
-
-	Node* op2;
-
-	while ((op2 = state_E3_(state)) != NULL) {
-		append_node(op2, op);
-		op = op2;
-	}
-
-	return op;
-}
-
-
-static Node* state_E2_(struct Synt_state* state) {
-	Token* top = match(state, 3, (enum Token_type[]){
-		AMPERSAND, CARET, PIPE,
-	});
-
-	if (top == NULL)
-		return NULL;
-
-	state->offset++;
-
-	Node* op = empty_node();
-	op->token = *top;
-
-	append_node(op, state_E2(state));
-
-	return op;
-}
-
-
-static Node* state_E2(struct Synt_state* state) {
-	Node* left = state_E3(state);
-	Node* op = state_E2_(state);
-
-	if (op == NULL)
-		return left;
-
-	append_node(op, left);
-
-	Node* op2;
-
-	while ((op2 = state_E2_(state)) != NULL) {
-		append_node(op2, op);
-		op = op2;
-	}
-
-	return op;
-}
-
-
-static Node* state_E1_(struct Synt_state* state) {
-	Token* top = match(state, 6, (enum Token_type[]){
-		EQUALS, NOT_EQUALS, MORE_EQUALS, MORE, LESS_EQUALS, LESS,
-	});
-
-	if (top == NULL)
-		return NULL;
-
-	state->offset++;
-
-	Node* op = empty_node();
-	op->token = *top;
-
-	append_node(op, state_E1(state));
-
-	return op;
-}
-
-
-static Node* state_E1(struct Synt_state* state) {
-	Node* left = state_E2(state);
-	Node* op = state_E1_(state);
-
-	if (op == NULL)
-		return left;
-
-	append_node(op, left);
-
-	Node* op2;
-
-	while ((op2 = state_E1_(state)) != NULL) {
-		append_node(op2, op);
-		op = op2;
-	}
-
-	return op;
-}
-
-
-static Node* state_E_(struct Synt_state* state) {
-	Token* top = match(state, 1, (enum Token_type[]){
-		ASSIGN,
-	});
-
-	if (top == NULL)
-		return NULL;
-
-	state->offset++;
-
-	Node* op = empty_node();
-	op->token = *top;
-
-	append_node(op, state_E1(state));
-
-	return op;
-}
-
-
-static Node* state_E(struct Synt_state* state) {
-	Node* left = state_E1(state);
-	Node* op = state_E_(state);
-
-	if (op == NULL)
-		return left;
-
-	append_node(op, left);
-
-	Node* op2;
-
-	while ((op2 = state_E_(state)) != NULL) {
-		append_node(op2, op);
-		op = op2;
-	}
-
-	return op;
-}
 
 
 Node* synt(Lexer_result lex) {
-	struct Synt_state state = {
+	Synt_state state = {
 		.lex = lex,
-		.offset = 0
+		.stack.count = 0,
+		.stack.values = malloc(0),
 	};
 
-	return state_E(&state);
+	Node* fisrt_node = empty_node();
+	fisrt_node->token = lex.tokens[state.offset++];
+	fisrt_node->next_token = lex.tokens[state.offset].type;
+
+	stack_push(state.stack, fisrt_node);
+
+	while (1) {
+		Node* node = empty_node();
+		char find = 0;
+		char start_with = 0;
+
+		// for (int i = 0; i < state.stack.count; i++)
+		// 	print_node(state.stack.values[i], 0);
+		// printf("================\n");
+
+		for (int i = 0; i < sizeof(rules) / sizeof(Rule); i++) {
+			int size = check_rule(&state, node, rules[i]);
+
+			if (size == 0) {
+				find = 1;
+				break;
+			}
+
+			if (size != -1) {
+				start_with = 1;
+				break;
+			}
+		}
+
+		if (find) {
+			node->next_token = lex.tokens[state.offset].type;
+			stack_push(state.stack, node);
+			continue;
+		}
+
+		if (start_with == 0 && state.offset == lex.tokens_count)
+			break;
+
+		if (start_with == 0 || state.offset == lex.tokens_count) {
+			ERROR("qwerty\n");
+			exit(1);
+		}
+
+		Node* next_node = empty_node();
+		next_node->token = lex.tokens[state.offset++];
+		next_node->next_token = lex.tokens[state.offset].type;
+
+		stack_push(state.stack, next_node);
+	}
+
+	return stack_pop(state.stack);
 }
 
 

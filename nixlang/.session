@@ -13,15 +13,15 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +53 main.c
-badd +1017 evalute.c
-badd +1 include/evalute.h
-badd +70 lexer.c
+badd +54 main.c
+badd +129 synt.c
+badd +42 include/utils.h
+badd +58 lexer.c
 argglobal
 %argdel
-edit evalute.c
+edit main.c
 argglobal
-balt lexer.c
+balt synt.c
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -122,7 +122,7 @@ setlocal spellfile=
 setlocal spelllang=en
 setlocal spelloptions=noplainbuffer
 setlocal statuscolumn=
-setlocal statusline=%<%#lualine_c_inactive#\ evalute.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ 1017:1\ \ 
+setlocal statusline=%<%#lualine_c_inactive#\ main.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ \ 54:1\ \ 
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
@@ -148,11 +148,11 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 1017 - ((33 * winheight(0) + 19) / 39)
+let s:l = 54 - ((20 * winheight(0) + 19) / 39)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 1017
+keepjumps 54
 normal! 0
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'

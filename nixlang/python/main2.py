@@ -154,3 +154,5 @@ while len(tokens) > 0:
         continue
 
     stack.append(pop_token())
+
+stack[0].print()
