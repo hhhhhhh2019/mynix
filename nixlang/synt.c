@@ -63,75 +63,463 @@ static int check_rule(Synt_state* state, Node* result, Rule rule) {
 
 static Rule rules[] = {
 	{
-		.count = 3,
+		.count = 2,
+		.result = Array,
 		.tokens = (enum Token_type[]){
-			E, PLUS,
-			PLUS, -1,
-			E, -1,
-		},
-		.result = E,
-	},
-
-	{
-		.count = 3,
-		.tokens = (enum Token_type[]){
-			LSBR, -1,
-			Aargs, RSBR,
+			LSBR, RSBR,
 			RSBR, -1,
 		},
+	},
+	{
+		.count = 3,
 		.result = Array,
+		.tokens = (enum Token_type[]){
+			LSBR, -1,
+			Aarg, RSBR,
+			RSBR, -1,
+		},
+	},
+	{
+		.count = 5,
+		.result = Array,
+		.tokens = (enum Token_type[]){
+			WITH, -1,
+			Name, LSBR,
+			LSBR, -1,
+			Aarg, RSBR,
+			RSBR, -1,
+		},
+	},
+	{
+		.count = 4,
+		.result = Array,
+		.tokens = (enum Token_type[]){
+			WITH, -1,
+			Name, LSBR,
+			LSBR, -1,
+			RSBR, -1,
+		},
 	},
 
 	{
 		.count = 1,
+		.result = Aarg,
 		.tokens = (enum Token_type[]){
-			E, RSBR,
+			E1, RSBR,
 		},
-		.result = Aargs,
 	},
-
 	{
 		.count = 3,
+		.result = Aarg,
 		.tokens = (enum Token_type[]){
-			E, COMMA,
+			E1, COMMA,
 			COMMA, -1,
-			Aargs, -1,
+			Aarg, -1,
 		},
-		.result = Aargs,
+	},
+
+	{
+		.count = 2,
+		.result = Set,
+		.tokens = (enum Token_type[]){
+			LCBR, RCBR,
+			RCBR, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = Set,
+		.tokens = (enum Token_type[]){
+			LCBR, -1,
+			Sargs, RCBR,
+			RCBR, -1,
+		},
+	},
+
+	{
+		.count = 2,
+		.result = Sargs,
+		.tokens = (enum Token_type[]){
+			Sarg, SEMICOLON,
+			SEMICOLON, -1,
+		},
+	},
+	{
+		.count = 2,
+		.result = Sargs,
+		.tokens = (enum Token_type[]){
+			Sargs, -1,
+			Sargs, -1,
+		},
 	},
 
 	{
 		.count = 3,
+		.result = Sarg,
 		.tokens = (enum Token_type[]){
-			E1, STAR,
-			STAR, -1,
+			Name, ASSIGN,
+			ASSIGN, -1,
 			E1, -1,
 		},
-		.result = E1,
+	},
+	{
+		.count = 2,
+		.result = Sarg,
+		.tokens = (enum Token_type[]){
+			INHERIT, UNDEFINED,
+			UNDEFINED, -1,
+		},
 	},
 
 	{
-		.count = 1,
+		.count = 4,
+		.result = Call,
 		.tokens = (enum Token_type[]){
+			E6, LBR,
+			LBR, -1,
+			E1, RBR,
+			RBR, -1,
+		},
+	},
+
+	{
+		.count = 3,
+		.result = Func_decl,
+		.tokens = (enum Token_type[]){
+			UNDEFINED, COLON,
+			COLON, -1,
 			E1, -1,
 		},
-		.result = E,
 	},
-
 	{
-		.count = 1,
+		.count = 6,
+		.result = Func_decl,
 		.tokens = (enum Token_type[]){
-			E2, -1,
+			UNDEFINED, COLON,
+			COLON, LET,
+			LET, -1,
+			Sargs, IN,
+			IN, -1,
+			E1, -1,
 		},
-		.result = E1,
+	},
+
+	{
+		.count = 3,
+		.result = Name,
+		.tokens = (enum Token_type[]){
+			Name, DOT,
+			DOT, UNDEFINED,
+			UNDEFINED, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = Name,
+		.tokens = (enum Token_type[]){
+			Set, DOT,
+			DOT, UNDEFINED,
+			UNDEFINED, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = Name,
+		.tokens = (enum Token_type[]){
+			Eval, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = Name,
+		.tokens = (enum Token_type[]){
+			Name, DOT,
+			DOT, -1,
+			Eval, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = Name,
+		.tokens = (enum Token_type[]){
+			Set, DOT,
+			DOT, UNDEFINED,
+			UNDEFINED, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = Name,
+		.tokens = (enum Token_type[]){
+			UNDEFINED, -1,
+		},
 	},
 
 	{
 		.count = 1,
+		.result = E6,
 		.tokens = (enum Token_type[]){
 			DEC_NUMBER, -1,
 		},
+	},
+	{
+		.count = 1,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			FLOAT_NUMBER, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			STRING, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			PATH, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			Set, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			Array, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			Name, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			LBR, -1,
+			E1, RBR,
+			RBR, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			Func_decl, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			Call, -1,
+		},
+	},
+	{
+		.count = 2,
+		.result = E6,
+		.tokens = (enum Token_type[]){
+			EXCLAMATION, -1,
+			E6, -1,
+		},
+	},
+
+	{
+		.count = 3,
+		.result = E5,
+		.tokens = (enum Token_type[]){
+			E5, STAR,
+			STAR, -1,
+			E5, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = E5,
+		.tokens = (enum Token_type[]){
+			E5, SLASH,
+			SLASH, -1,
+			E5, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E5,
+		.tokens = (enum Token_type[]){
+			E6, -1,
+		},
+	},
+
+	{
+		.count = 3,
+		.result = E4,
+		.tokens = (enum Token_type[]){
+			E4, PLUS,
+			PLUS, -1,
+			E4, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = E4,
+		.tokens = (enum Token_type[]){
+			E4, MINUS,
+			MINUS, -1,
+			E4, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E4,
+		.tokens = (enum Token_type[]){
+			E5, -1,
+		},
+	},
+
+	{
+		.count = 3,
+		.result = E3,
+		.tokens = (enum Token_type[]){
+			E3, PIPE,
+			PIPE, -1,
+			E3, -1
+		},
+	},
+	{
+		.count = 3,
+		.result = E3,
+		.tokens = (enum Token_type[]){
+			E3, AMPERSAND,
+			AMPERSAND, -1,
+			E3, -1
+		},
+	},
+	{
+		.count = 3,
+		.result = E3,
+		.tokens = (enum Token_type[]){
+			E3, CARET,
+			CARET, -1,
+			E3, -1
+		},
+	},
+	{
+		.count = 1,
+		.result = E3,
+		.tokens = (enum Token_type[]){
+			E4, -1,
+		},
+	},
+
+	{
+		.count = 3,
 		.result = E2,
+		.tokens = (enum Token_type[]){
+			E2, EQUALS,
+			EQUALS, -1,
+			E2, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = E2,
+		.tokens = (enum Token_type[]){
+			E2, NOT_EQUALS,
+			NOT_EQUALS, -1,
+			E2, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = E2,
+		.tokens = (enum Token_type[]){
+			E2, LESS,
+			LESS, -1,
+			E2, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = E2,
+		.tokens = (enum Token_type[]){
+			E2, LESS_EQUALS,
+			LESS_EQUALS, -1,
+			E2, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = E2,
+		.tokens = (enum Token_type[]){
+			E2, MORE,
+			MORE, -1,
+			E2, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = E2,
+		.tokens = (enum Token_type[]){
+			E2, MORE_EQUALS,
+			MORE_EQUALS, -1,
+			E2, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E2,
+		.tokens = (enum Token_type[]){
+			E3, -1,
+		},
+	},
+
+	{
+		.count = 3,
+		.result = E1,
+		.tokens = (enum Token_type[]){
+			IF, -1,
+			E1, THEN,
+			THEN, -1,
+			E1, ELSE,
+			ELSE, -1,
+			E1, -1
+		},
+	},
+	{
+		.count = 1,
+		.result = E1,
+		.tokens = (enum Token_type[]){
+			E2, -1,
+		},
+	},
+
+	{
+		.count = 3,
+		.result = E,
+		.tokens = (enum Token_type[]){
+			Name, ASSIGN,
+			ASSIGN, -1,
+			E1, -1,
+		},
+	},
+	{
+		.count = 1,
+		.result = E,
+		.tokens = (enum Token_type[]){
+			E1, -1,
+		},
 	},
 };
 
@@ -154,23 +542,31 @@ Node* synt(Lexer_result lex) {
 		char find = 0;
 		char start_with = 0;
 
+		// printf("\n================\n");
 		// for (int i = 0; i < state.stack.count; i++)
 		// 	print_node(state.stack.values[i], 0);
-		// printf("================\n");
+		// printf("\n----------------\n");
 
 		for (int i = 0; i < sizeof(rules) / sizeof(Rule); i++) {
+			// printf("%d ", i);
 			int size = check_rule(&state, node, rules[i]);
 
 			if (size == 0) {
 				find = 1;
+				// printf("find\n");
 				break;
 			}
 
 			if (size != -1) {
 				start_with = 1;
+				// printf("start\n");
 				break;
 			}
+			
+			// printf("\n");
 		}
+
+		// printf("%d %d\n", find, start_with);
 
 		if (find) {
 			node->next_token = lex.tokens[state.offset].type;
@@ -210,6 +606,11 @@ void print_node(Node* node, int offset) {
 		printf("%s\n", token_type_names[node->token.type]);
 	else
 		printf("%s\n", node->token.value);
+
+	// if (token_type_names[node->next_token] != NULL)
+	// 	printf("%s\n", token_type_names[node->next_token]);
+	// else
+	// 	printf("\n");
 
 	for (int i = 0; i < node->childs_count; i++)
 		print_node(node->childs[i], offset + 1);

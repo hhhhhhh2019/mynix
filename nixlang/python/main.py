@@ -4,29 +4,27 @@ from lexer import Token, lexer
 from pprint import pprint
 
 
-string = """
-{
-    array = [
-        -1 + 2 * 3,
-        "qwerty",
-        '/home/user/file with space'
-    ];
-
-    a.b = {
-        f = func (1 + 2) * 3;
-    };
-}
-"""
+#string = """
+#{
+#    array = [
+#        -1 + 2 * 3,
+#        "qwerty",
+#        '/home/user/file with space'
+#    ];
+#
+#    a.b = {
+#        f = func (1 + 2) * 3;
+#    };
+#}
+#"""
 # string = """
 # a = if true then 1 else 2
 # """
 
+string = "a.b\n"
+
 
 tokens = lexer(string)
-
-
-pprint(tokens)
-exit()
 
 
 class Node:

@@ -13,7 +13,7 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +144 main2.py
+badd +119 main2.py
 argglobal
 %argdel
 $argadd main2.py
@@ -127,7 +127,7 @@ setlocal spellfile=
 setlocal spelllang=en
 setlocal spelloptions=noplainbuffer
 setlocal statuscolumn=
-setlocal statusline=%#lualine_a_normal#\ NORMAL\ %#lualine_transitional_lualine_a_normal_to_lualine_b_normal#%#lualine_b_normal#\ main2.py\ %#lualine_b_filetype_DevIconDefault_normal#\ \ %#lualine_b_normal#python\ %#lualine_transitional_lualine_b_normal_to_lualine_c_normal#%<%#lualine_c_normal#\ \ master\ %#lualine_c_normal#%=%#lualine_transitional_lualine_a_normal_to_lualine_c_normal#%#lualine_a_normal#\ 119:20\ %#lualine_a_normal#\ 76%%\ 
+setlocal statusline=%#lualine_a_command#\ COMMAND\ %#lualine_transitional_lualine_a_command_to_lualine_b_command#%#lualine_b_command#\ main2.py\ %#lualine_b_filetype_DevIconDefault_command#\ \ %#lualine_b_command#python\ %#lualine_transitional_lualine_b_command_to_lualine_c_normal#%<%#lualine_c_normal#\ \ master\ %#lualine_c_normal#%=%#lualine_transitional_lualine_a_command_to_lualine_c_normal#%#lualine_a_command#\ 119:20\ %#lualine_a_command#\ 75%%\ 
 setlocal suffixesadd=.py
 setlocal swapfile
 setlocal synmaxcol=3000
@@ -153,7 +153,7 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 119 - ((12 * winheight(0) + 20) / 40)
+let s:l = 119 - ((12 * winheight(0) + 19) / 39)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt

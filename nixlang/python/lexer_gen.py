@@ -29,7 +29,7 @@ tokens = [
     ["COLON",        r":",                           set()],
     ["DOLLAR",       r"$",                           set()],
     ["PLUS",         r"\+",                          set()],
-    # ["MINUS",        r"-",                           set()],
+    ["MINUS",        r"-",                           set()],
     ["SLASH",        r"/",                           set()],
     ["STAR",         r"\*",                          set()],
     ["AMPERSAND",    r"\&",                          set()],
@@ -62,8 +62,7 @@ nfa = {
             2: list(ascii_letters + "_"),
             3: ['"'],
             6: ["'"],
-            9: ["-"],
-            10: list("0123456789"),
+            9: list("0123456789"),
             -1: ["_other"]
         },
         "type": -1,
@@ -136,35 +135,26 @@ nfa = {
 
     9: {
         "rules": {
-            10: list("0123456789"),
-            0: ["_other"],
-        },
-        "type": "MINUS",
-        "using": False
-    },
-
-    10: {
-        "rules": {
-            10: list("0123456789"),
-            11: ["."],
+            9: list("0123456789"),
+            10: ["."],
             0: ["_other"],
         },
         "type": "DEC_NUMBER",
         "using": False
     },
 
-    11: {
+    10: {
         "rules": {
-            12: list("0123456789"),
+            11: list("0123456789"),
             -1: ["_other"],
         },
         "type": 0,
         "using": False
     },
 
-    12: {
+    11: {
         "rules": {
-            12: list("0123456789"),
+            11: list("0123456789"),
             0: ["_other"],
         },
         "type": "FLOAT_NUMBER",

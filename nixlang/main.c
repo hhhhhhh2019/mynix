@@ -28,29 +28,29 @@ int main() {
 	// ;
 	
 
-	// char* data =
-	// 	"input: {"
-	// 		"system.host = \"nixhost\";"
-	// 		"system.arch = \"myarch\";"
-	// 		"system.packages = ["
-	// 			"input.pkgs.htop,"
-	// 			"input.pkgs.git,"
-	// 			"input.pkgs.zsh,"
-	// 		"];"
-	// 		"system.users = {"
-	// 			"alex = {"
-	// 				"groups = [ wheel users alex ];"
-	// 				"home = '/home/alex';"
-	// 				"shell = input.pkgs.zsh;"
-	// 				"modules = ["
-	// 					"'./users/alex/alex.nix'"
-	// 				"];"
-	// 			"};"
-	// 		"};"
-	// 	"}"
-	// 	"\n";
+	char* data =
+		"{"
+			"system.host = \"nixhost\";"
+			"system.arch = \"myarch\";"
+			"system.packages = ["
+				"input.pkgs.htop,"
+				"input.pkgs.git,"
+				"input.pkgs.zsh"
+			"];"
+			// "system.users = {"
+			// 	"alex = {"
+			// 		"groups = [ wheel users alex ];"
+			// 		"home = '/home/alex';"
+			// 		"shell = input.pkgs.zsh;"
+			// 		"modules = ["
+			// 			"'./users/alex/alex.nix'"
+			// 		"];"
+			// 	"};"
+			// "};"
+		"}"
+		"\n";
 	
-	char* data = "[1 + 2 * 3, 4, 5]\n";
+	// char* data = "[a.b.c]\n";
 
 	Lexer_result lexer_res = lexer(data, "file");
 

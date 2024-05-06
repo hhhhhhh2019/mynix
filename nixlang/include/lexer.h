@@ -46,22 +46,25 @@ enum Token_type {
 	LESS_EQUALS,
 	MORE,
 	MORE_EQUALS,
+
 	TERMINALS_COUNT,
-	Start,
-	Set,
-	Sargs,
-	Sarg,
-	Array,
-	Aargs,
+
 	E,
 	E1,
 	E2,
 	E3,
 	E4,
 	E5,
+	E6,
 	Name,
-	Func_decl,
 	Call,
+	Func_decl,
+	Array,
+	Aarg,
+	Set,
+	Sargs,
+	Sarg,
+	Eval,
 };
 
 

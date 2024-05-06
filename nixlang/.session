@@ -14,12 +14,18 @@ else
   set shortmess=aoO
 endif
 badd +53 main.c
-badd +159 synt.c
+badd +545 synt.c
 badd +42 include/utils.h
-badd +58 lexer.c
 argglobal
 %argdel
 edit synt.c
+wincmd t
+let s:save_winminheight = &winminheight
+let s:save_winminwidth = &winminwidth
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
 argglobal
 balt main.c
 setlocal keymap=
@@ -122,7 +128,7 @@ setlocal spellfile=
 setlocal spelllang=en
 setlocal spelloptions=noplainbuffer
 setlocal statuscolumn=
-setlocal statusline=%<%#lualine_c_inactive#\ synt.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ 159:19\ 
+setlocal statusline=%<%#lualine_c_inactive#\ synt.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ 545:15\ 
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
@@ -160,14 +166,6 @@ normal! zo
 normal! zo
 45
 normal! zo
-45
-normal! zo
-49
-normal! zo
-52
-normal! zo
-55
-normal! zo
 49
 normal! zo
 52
@@ -178,130 +176,260 @@ normal! zo
 normal! zo
 65
 normal! zo
-67
+68
 normal! zo
-75
+73
 normal! zo
-77
+76
 normal! zo
-83
+82
 normal! zo
 85
 normal! zo
 93
 normal! zo
-95
+96
 normal! zo
-101
+104
 normal! zo
-103
+107
 normal! zo
 111
 normal! zo
-112
+114
+normal! zo
+121
 normal! zo
 124
 normal! zo
 129
 normal! zo
-135
+139
 normal! zo
-143
+142
 normal! zo
 147
 normal! zo
-153
+150
 normal! zo
-169
+156
 normal! zo
-170
+159
 normal! zo
-173
+165
 normal! zo
-178
+168
 normal! zo
-183
+174
+normal! zo
+177
+normal! zo
+185
 normal! zo
 188
 normal! zo
-189
+194
 normal! zo
-196
-normal! zo
-202
+197
 normal! zo
 207
 normal! zo
 210
 normal! zo
-64
-normal! zo
-65
-normal! zo
-65
-normal! zo
-75
-normal! zo
-103
-normal! zo
-109
-normal! zo
-111
-normal! zo
-119
-normal! zo
-121
-normal! zo
-129
-normal! zo
-131
-normal! zo
-139
-normal! zo
-140
-normal! zo
-152
-normal! zo
-161
-normal! zo
-164
-normal! zo
-169
-normal! zo
-175
-normal! zo
-181
-normal! zo
-184
-normal! zo
-200
-normal! zo
-201
-normal! zo
-204
-normal! zo
-209
-normal! zo
-214
+216
 normal! zo
 219
 normal! zo
-220
+225
 normal! zo
-227
+228
 normal! zo
-233
+232
 normal! zo
-238
+235
 normal! zo
 241
 normal! zo
-let s:l = 159 - ((21 * winheight(0) + 19) / 39)
+244
+normal! zo
+250
+normal! zo
+253
+normal! zo
+258
+normal! zo
+261
+normal! zo
+265
+normal! zo
+268
+normal! zo
+272
+normal! zo
+275
+normal! zo
+279
+normal! zo
+282
+normal! zo
+286
+normal! zo
+289
+normal! zo
+293
+normal! zo
+296
+normal! zo
+300
+normal! zo
+303
+normal! zo
+307
+normal! zo
+310
+normal! zo
+316
+normal! zo
+319
+normal! zo
+323
+normal! zo
+326
+normal! zo
+330
+normal! zo
+333
+normal! zo
+339
+normal! zo
+342
+normal! zo
+348
+normal! zo
+351
+normal! zo
+357
+normal! zo
+360
+normal! zo
+365
+normal! zo
+368
+normal! zo
+374
+normal! zo
+377
+normal! zo
+383
+normal! zo
+386
+normal! zo
+391
+normal! zo
+394
+normal! zo
+400
+normal! zo
+403
+normal! zo
+409
+normal! zo
+412
+normal! zo
+418
+normal! zo
+421
+normal! zo
+426
+normal! zo
+429
+normal! zo
+435
+normal! zo
+438
+normal! zo
+444
+normal! zo
+447
+normal! zo
+453
+normal! zo
+456
+normal! zo
+462
+normal! zo
+465
+normal! zo
+471
+normal! zo
+474
+normal! zo
+480
+normal! zo
+483
+normal! zo
+488
+normal! zo
+491
+normal! zo
+500
+normal! zo
+503
+normal! zo
+508
+normal! zo
+511
+normal! zo
+517
+normal! zo
+520
+normal! zo
+527
+normal! zo
+528
+normal! zo
+540
+normal! zo
+550
+normal! zo
+554
+normal! zo
+560
+normal! zo
+571
+normal! zo
+577
+normal! zo
+580
+normal! zo
+596
+normal! zo
+597
+normal! zo
+600
+normal! zo
+605
+normal! zo
+615
+normal! zo
+620
+normal! zo
+621
+normal! zo
+628
+normal! zo
+634
+normal! zo
+639
+normal! zo
+642
+normal! zo
+let s:l = 545 - ((14 * winheight(0) + 19) / 39)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 159
-normal! 019|
+keepjumps 545
+normal! 015|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
@@ -309,6 +437,8 @@ endif
 unlet! s:wipebuf
 set winheight=1 winwidth=20
 let &shortmess = s:shortmess_save
+let &winminheight = s:save_winminheight
+let &winminwidth = s:save_winminwidth
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
