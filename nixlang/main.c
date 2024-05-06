@@ -29,7 +29,7 @@ int main() {
 	
 
 	char* data =
-		"{"
+		"input: {"
 			"system.host = \"nixhost\";"
 			"system.arch = \"myarch\";"
 			"system.packages = ["
@@ -50,7 +50,7 @@ int main() {
 		"}"
 		"\n";
 	
-	// char* data = "[a.b.c]\n";
+	// char* data = "[1,2,3]\n";
 
 	Lexer_result lexer_res = lexer(data, "file");
 

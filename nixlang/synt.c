@@ -2,6 +2,7 @@
 #include "lexer.h"
 #include "utils.h"
 
+#include <stdio.h>
 #include <string.h>
 
 
@@ -581,6 +582,8 @@ Node* synt(Lexer_result lex) {
 			ERROR("qwerty\n");
 			exit(1);
 		}
+		// printf("%d %d\n", state.offset, lex.tokens_count);
+		// fflush(stdout);
 
 		Node* next_node = empty_node();
 		next_node->token = lex.tokens[state.offset++];
@@ -589,7 +592,45 @@ Node* synt(Lexer_result lex) {
 		stack_push(state.stack, next_node);
 	}
 
-	return stack_pop(state.stack);
+	Node* result = stack_pop(state.stack);
+	remove_unused_node(result);
+
+	return result;
+}
+
+
+void remove_unused_node(Node* root) {
+	if (root->token.type == SEMICOLON ||
+	    root->token.type == COLON ||
+	    root->token.type == COMMA ||
+	    root->token.type == DOLLAR ||
+	    root->token.type == IF ||
+	    root->token.type == THEN ||
+	    root->token.type == ELSE ||
+	    root->token.type == LBR ||
+	    root->token.type == RBR ||
+	    root->token.type == LSBR ||
+	    root->token.type == RSBR ||
+	    root->token.type == LCBR ||
+	    root->token.type == RCBR) {
+		remove_node(root->parent, root);
+		return;
+	}
+
+	int save_childs_count = root->childs_count;
+	Node** save_childs = malloc(sizeof(Node*) * save_childs_count);
+	memcpy(save_childs, root->childs, sizeof(Node*) * save_childs_count);
+	for (int i = 0; i < save_childs_count; i++)
+		remove_unused_node(save_childs[i]);
+	free(save_childs);
+
+	if (root->childs_count == 1) {
+		Node* child = root->childs[0];
+		*root = *child;
+		free(child);
+
+		return;
+	}
 }
 
 

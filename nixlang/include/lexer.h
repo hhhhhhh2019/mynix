@@ -11,7 +11,6 @@ enum Token_type {
 	UNDEFINED,
 	LET,
 	IN,
-	REC,
 	WITH,
 	INHERIT,
 	IF,
@@ -32,7 +31,6 @@ enum Token_type {
 	EXCLAMATION,
 	DOT,
 	COMMA,
-	EPSILON,
 	LBR,
 	RBR,
 	LCBR,
@@ -49,6 +47,7 @@ enum Token_type {
 
 	TERMINALS_COUNT,
 
+	EOI,
 	E,
 	E1,
 	E2,
