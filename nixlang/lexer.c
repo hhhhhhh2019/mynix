@@ -242,13 +242,19 @@ Lexer_result lexer(char* data, char* filename) {
 		result.tokens = realloc(result.tokens, sizeof(Token) * (++result.tokens_count));
 		result.tokens[result.tokens_count - 1] = tokens[i];
 	}
-	
-	result.tokens = realloc(result.tokens, sizeof(Token) * (result.tokens_count + 1));
+
+	result.tokens = realloc(result.tokens, sizeof(Token) * (result.tokens_count + 2));
 	result.tokens[result.tokens_count].type = EOI;
 	result.tokens[result.tokens_count].value = "";
 	result.tokens[result.tokens_count].filename = filename;
 	result.tokens[result.tokens_count].line = 0;
 	result.tokens[result.tokens_count].column = 0;
+
+	result.tokens[result.tokens_count + 1].type = EOI;
+	result.tokens[result.tokens_count + 1].value = "";
+	result.tokens[result.tokens_count + 1].filename = filename;
+	result.tokens[result.tokens_count + 1].line = 0;
+	result.tokens[result.tokens_count + 1].column = 0;
 
 	return result;
 }

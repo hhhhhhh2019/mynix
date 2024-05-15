@@ -1,6 +1,8 @@
 #include "evalute.h"
 #include "lexer.h"
+#include "libs/stdlib.h"
 #include "synt.h"
+#include "utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,8 +18,9 @@ char* object_type_names[] = {
 	[OBJECT_ARRAY] = "OBJECT_ARRAY",
 	[OBJECT_SET] = "OBJECT_SET",
 	[OBJECT_FUNCTION] = "OBJECT_FUNCTION",
+	[OBJECT_FUNCTION_EXTERNAL] = "OBJECT_FUNCTION_EXTERNAL",
 	[OBJECT_VARIABLE] = "OBJECT_VARIABLE",
-	[OBJECT_VARIABLE_POINTER] = "OBJECT_VARIABLE_POINTER",
+	[OBJECT_NAME] = "OBJECT_NAME",
 	[OBJECT_OPERATION] = "OBJECT_OPERATION",
 };
 
@@ -28,6 +31,7 @@ char* operation_type_names[] = {
 	[OP_ELESS] = "OP_ELESS",
 	[OP_MORE] = "OP_MORE",
 	[OP_EMORE] = "OP_EMORE",
+	[OP_ASSIGN] = "OP_ASSIGN",
 	[OP_SUM] = "OP_SUM",
 	[OP_SUB] = "OP_SUB",
 	[OP_MUL] = "OP_MUL",
@@ -37,48 +41,87 @@ char* operation_type_names[] = {
 	[OP_XOR] = "OP_XOR",
 	[OP_NOT] = "OP_NOT",
 	[OP_DOT] = "OP_DOT",
+	[OP_CALL] = "OP_CALL",
 };
 
-Object** variables;
-unsigned int variables_count;
+
+Scope* global_scope;
+Scope* current_scope;
 
 
 void init_def_vars() {
-	Object_variable* var_true      = malloc(sizeof(Object_variable));
+	Object_variable var_true;
 	Object_boolean* var_true_value = malloc(sizeof(Object_boolean));
 	var_true_value->value = 1;
-	var_true->name = "true";
-	var_true->value = malloc(sizeof(Object));
-	var_true->value->type = OBJECT_BOOLEAN;
-	var_true->value->data = var_true_value;
+	var_true.name = "true";
+	var_true.value = malloc(sizeof(Object));
+	var_true.value->type = OBJECT_BOOLEAN;
+	var_true.value->data = var_true_value;
 
-	Object_variable* var_false      = malloc(sizeof(Object_variable));
+	Object_variable var_false;
 	Object_boolean* var_false_value = malloc(sizeof(Object_boolean));
 	var_false_value->value = 0;
-	var_false->name = "false";
-	var_false->value = malloc(sizeof(Object));
-	var_false->value->type = OBJECT_BOOLEAN;
-	var_false->value->data = var_false_value;
+	var_false.name = "false";
+	var_false.value = malloc(sizeof(Object));
+	var_false.value->type = OBJECT_BOOLEAN;
+	var_false.value->data = var_false_value;
 
 
-	variables_count = 2;
+	Object_variable var_stdlib;
+	Object_set* var_stdlib_value = malloc(sizeof(Object_set));
+	var_stdlib.name = "stdlib";
+	var_stdlib_value->count = 1;
+	var_stdlib_value->elems = malloc(sizeof(Set_arg) * var_stdlib_value->count);
+	var_stdlib.value = malloc(sizeof(Object));
+	var_stdlib.value->type = OBJECT_SET;
+	var_stdlib.value->data = var_stdlib_value;
 
-	variables = malloc(sizeof(void*) * variables_count);
 
-	variables[0] = malloc(sizeof(Object));
-	variables[0]->type = OBJECT_VARIABLE;
-	variables[0]->data = var_true;
+	Object_function_external* func_stdlib_atoi = malloc(sizeof(Object_function_external));
+	func_stdlib_atoi->body = stdlib_atoi;
 
-	variables[1] = malloc(sizeof(Object));
-	variables[1]->type = OBJECT_VARIABLE;
-	variables[1]->data = var_false;
+	Object* obj_stdlib_atoi = malloc(sizeof(Object));
+	obj_stdlib_atoi->type = OBJECT_FUNCTION_EXTERNAL;
+	obj_stdlib_atoi->data = func_stdlib_atoi;
+
+	var_stdlib_value->elems[0].name = "atoi";
+	var_stdlib_value->elems[0].value = obj_stdlib_atoi;
+
+
+	global_scope = malloc(sizeof(Scope));
+
+
+	global_scope->variables_count = 3;
+
+	global_scope->variables = malloc(
+	    sizeof(Object_variable) * global_scope->variables_count);
+
+	global_scope->variables[0] = var_true;
+	global_scope->variables[1] = var_false;
+	global_scope->variables[2] = var_stdlib;
+
+	current_scope = global_scope;
 }
 
 
 Object* node_to_object(Node* node) {
 	Object* object = malloc(sizeof(Object));
-	
-	if (node->token.type == EQUALS) {
+
+	if (node->token.type == ASSIGN) {
+		object->type = OBJECT_OPERATION;
+		object->data = malloc(sizeof(Object_operation));
+
+		Object_operation* data = object->data;
+
+		data->type = OP_ASSIGN;
+		data->count = node->childs_count;
+		data->args = malloc(sizeof(void*) * data->count);
+
+		for (int i = 0; i < data->count; i++)
+			data->args[i] = node_to_object(node->childs[i]);
+	}
+
+	else if (node->token.type == EQUALS) {
 		object->type = OBJECT_OPERATION;
 		object->data = malloc(sizeof(Object_operation));
 
@@ -92,7 +135,7 @@ Object* node_to_object(Node* node) {
 			data->args[i] = node_to_object(node->childs[i]);
 	}
 	
-	if (node->token.type == NOT_EQUALS) {
+	else if (node->token.type == NOT_EQUALS) {
 		object->type = OBJECT_OPERATION;
 		object->data = malloc(sizeof(Object_operation));
 
@@ -106,7 +149,7 @@ Object* node_to_object(Node* node) {
 			data->args[i] = node_to_object(node->childs[i]);
 	}
 	
-	if (node->token.type == LESS) {
+	else if (node->token.type == LESS) {
 		object->type = OBJECT_OPERATION;
 		object->data = malloc(sizeof(Object_operation));
 
@@ -120,7 +163,7 @@ Object* node_to_object(Node* node) {
 			data->args[i] = node_to_object(node->childs[i]);
 	}
 	
-	if (node->token.type == LESS_EQUALS) {
+	else if (node->token.type == LESS_EQUALS) {
 		object->type = OBJECT_OPERATION;
 		object->data = malloc(sizeof(Object_operation));
 
@@ -134,7 +177,7 @@ Object* node_to_object(Node* node) {
 			data->args[i] = node_to_object(node->childs[i]);
 	}
 	
-	if (node->token.type == MORE) {
+	else if (node->token.type == MORE) {
 		object->type = OBJECT_OPERATION;
 		object->data = malloc(sizeof(Object_operation));
 
@@ -148,7 +191,7 @@ Object* node_to_object(Node* node) {
 			data->args[i] = node_to_object(node->childs[i]);
 	}
 	
-	if (node->token.type == MORE_EQUALS) {
+	else if (node->token.type == MORE_EQUALS) {
 		object->type = OBJECT_OPERATION;
 		object->data = malloc(sizeof(Object_operation));
 
@@ -162,7 +205,21 @@ Object* node_to_object(Node* node) {
 			data->args[i] = node_to_object(node->childs[i]);
 	}
 	
-	if (node->token.type == PLUS) {
+	else if (node->token.type == ASSIGN) {
+		object->type = OBJECT_OPERATION;
+		object->data = malloc(sizeof(Object_operation));
+
+		Object_operation* data = object->data;
+
+		data->type = OP_ASSIGN;
+		data->count = node->childs_count;
+		data->args = malloc(sizeof(void*) * data->count);
+
+		for (int i = 0; i < data->count; i++)
+			data->args[i] = node_to_object(node->childs[i]);
+	}
+	
+	else if (node->token.type == PLUS) {
 		object->type = OBJECT_OPERATION;
 		object->data = malloc(sizeof(Object_operation));
 
@@ -274,13 +331,13 @@ Object* node_to_object(Node* node) {
 			data->args[i] = node_to_object(node->childs[i]);
 	}
 
-	else if (node->token.type == DOT) {
+	else if (node->token.type == Call) {
 		object->type = OBJECT_OPERATION;
 		object->data = malloc(sizeof(Object_operation));
 
 		Object_operation* data = object->data;
 
-		data->type = OP_DOT;
+		data->type = OP_CALL;
 		data->count = node->childs_count;
 		data->args = malloc(sizeof(void*) * data->count);
 
@@ -306,6 +363,24 @@ Object* node_to_object(Node* node) {
 		data->value = atof(node->token.value);
 	}
 
+	else if (node->token.type == STRING) {
+		object->type = OBJECT_STRING;
+		object->data = malloc(sizeof(Object_string));
+
+		Object_string* data = object->data;
+
+		data->value = node->token.value;
+	}
+
+	else if (node->token.type == PATH) {
+		object->type = OBJECT_PATH;
+		object->data = malloc(sizeof(Object_path));
+
+		Object_path* data = object->data;
+
+		data->value = node->token.value;
+	}
+
 	else if (node->token.type == Func_decl) {
 		object->type = OBJECT_FUNCTION;
 		object->data = malloc(sizeof(Object_function));
@@ -316,14 +391,90 @@ Object* node_to_object(Node* node) {
 		data->body          = node_to_object(node->childs[1]);
 	}
 
-	else if (node->token.type == UNDEFINED) {
-		object->type = OBJECT_VARIABLE_POINTER;
-		object->data = malloc(sizeof(Object_var_pointer));
+	// else if (node->token.type == UNDEFINED) {
+	// 	object->type = OBJECT_VARIABLE_POINTER;
+	// 	object->data = malloc(sizeof(Object_var_pointer));
+	//
+	// 	Object_var_pointer* data = object->data;
+	//
+	// 	data->name = node->token.value;
+	// }
 
-		Object_var_pointer* data = object->data;
+	else if (node->token.type == Name) {
+		if (node->childs_count != 1) {
+			object->type = OBJECT_OPERATION;
+			object->data = malloc(sizeof(Object_operation));
+
+			Object_operation* data = object->data;
+
+			data->type = OP_DOT;
+			data->count = 2;
+			data->args = malloc(sizeof(void*) * data->count);
+
+			data->args[0] = node_to_object(node->childs[0]);
+			data->args[1] = node_to_object(node->childs[2]);
+		} else {
+			object->type = OBJECT_NAME;
+			object->data = malloc(sizeof(Object_name));
+
+			Object_name* data = object->data;
+
+			data->name = node->childs[0]->token.value;
+		}
+	}
+
+	else if (node->token.type == UNDEFINED) {
+		object->type = OBJECT_NAME;
+		object->data = malloc(sizeof(Object_name));
+
+		Object_name* data = object->data;
 
 		data->name = node->token.value;
 	}
+
+	else if (node->token.type == Array) {
+		object->type = OBJECT_ARRAY;
+		object->data = malloc(sizeof(Object_array));
+
+		Object_array* data = object->data;
+		data->elems = malloc(0);
+		data->count = 0;
+
+		Node* arg = node->childs[0];
+
+		while (1) {
+			if (arg->token.type == Aarg) {
+				data->elems = realloc(data->elems, sizeof(Object*) * (++data->count));
+				data->elems[data->count-1] = node_to_object(arg->childs[1]);
+				arg = arg->childs[0];
+			} else {
+				data->elems = realloc(data->elems, sizeof(Object*) * (++data->count));
+				data->elems[data->count-1] = node_to_object(arg);
+				break;
+			}
+		}
+	}
+
+	// else if (node->token.type == Set) {
+	// 	object->type = OBJECT_SET;
+	// 	object->data = malloc(sizeof(Object_array));
+	//
+	// 	Object_set* data = object->data;
+	// 	data->elems = malloc(0);
+	// 	data->count = 0;
+	//
+	// 	Node* arg = node->childs[0];
+	//
+	// 	while (1) {
+	// 		if (arg->token.type == Sargs) {
+	// 			
+	// 		} else {
+	// 			
+	// 		}
+	// 	}
+	// }
+	
+	else return NULL;
 
 	return object;
 };
@@ -969,6 +1120,54 @@ static Object* evalute_not(Object* arg) {
 }
 
 
+static Object* evalute_dot(Object* left, Object* right) {
+	if (left->type != OBJECT_SET || right->type != OBJECT_NAME)
+		return NULL;
+
+	Object_set* set = left->data;
+	Object_name* name = right->data;
+
+	for (int i = 0; i < set->count; i++) {
+		if (strcmp(set->elems[i].name, name->name) == 0)
+			return set->elems[i].value;
+	}
+
+	return NULL;
+}
+
+
+static Object* evalute_call(Object* left, Object* right) {
+	if (left->type == OBJECT_FUNCTION) {
+		Object_function* func = left->data;
+
+		Scope* new_scope = malloc(sizeof(Scope));
+		new_scope->parent = current_scope;
+		current_scope = new_scope;
+
+		current_scope->variables_count = 1;
+		current_scope->variables = malloc(sizeof(Object_variable) * 1);
+		current_scope->variables[0].name = func->argument_name;
+		current_scope->variables[0].value = right;
+
+		Object* result = evalute(func->body);
+
+		current_scope = current_scope->parent;
+
+		free(new_scope->variables);
+		free(new_scope);
+
+		return result;
+	}
+	if (left->type == OBJECT_FUNCTION_EXTERNAL) {
+		Object_function_external* func = left->data;
+
+		return (*func->body)(right);
+	}
+
+	return NULL;
+}
+
+
 static Object* evalute_op(Object_operation* op) {
 	if (op->type == OP_EQ)
 		return evalute_eq(evalute(op->args[1]),
@@ -1011,17 +1210,21 @@ static Object* evalute_op(Object_operation* op) {
 		                   evalute(op->args[0]));
 	if (op->type == OP_NOT)
 		return evalute_not(evalute(op->args[0]));
+	if (op->type == OP_DOT)
+		return evalute_dot(evalute(op->args[1]),
+		                   op->args[0]);
+	if (op->type == OP_CALL)
+		return evalute_call(evalute(op->args[1]),
+		                    evalute(op->args[0]));
 	return NULL;
 }
 
 
 
-Object* evalute_pointer(Object_var_pointer* pointer) {
-	for (int i = 0; i < variables_count; i++) {
-		Object_variable* var = variables[i]->data;
-
-		if (strcmp(pointer->name, var->name) == 0)
-			return var->value;
+Object* evalute_pointer(Object_name* pointer) {
+	for (int i = 0; i < current_scope->variables_count; i++) {
+		if (strcmp(pointer->name, current_scope->variables[i].name) == 0)
+			return current_scope->variables[i].value;
 	}
 
 	printf("Variable %s not found!\n", pointer->name);
@@ -1041,7 +1244,7 @@ Object* evalute(Object* root) {
 	if (root->type == OBJECT_OPERATION)
 		return evalute_op(root->data);
 
-	if (root->type == OBJECT_VARIABLE_POINTER)
+	if (root->type == OBJECT_NAME)
 		return evalute_pointer(root->data);
 }
 
@@ -1055,6 +1258,7 @@ void print_object(Object* obj, int offset) {
 		return;
 	}
 
+	// printf("\n%d\n", obj->type);
 	printf("%s ", object_type_names[obj->type]);
 
 	if (obj->type == OBJECT_NUMBER) {
@@ -1102,8 +1306,8 @@ void print_object(Object* obj, int offset) {
 		return;
 	}
 
-	if (obj->type == OBJECT_VARIABLE_POINTER) {
-		Object_var_pointer* pointer = obj->data;
+	if (obj->type == OBJECT_NAME) {
+		Object_name* pointer = obj->data;
 
 		printf("%s\n", pointer->name);
 
@@ -1115,6 +1319,16 @@ void print_object(Object* obj, int offset) {
 
 		printf("%s\n", var->name);
 		print_object(var->value, offset + 1);
+
+		return;
+	}
+
+	if (obj->type == OBJECT_ARRAY) {
+		Object_array* arr = obj->data;
+		printf("%d\n", arr->count);
+
+		for (int i = 0; i < arr->count; i++)
+			print_object(arr->elems[i], offset + 1);
 
 		return;
 	}

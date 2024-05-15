@@ -138,29 +138,29 @@ static Rule rules[] = {
 	},
 
 	{
-		.count = 2,
+		.count = 1,
 		.result = Sargs,
 		.tokens = (enum Token_type[]){
-			Sarg, SEMICOLON,
-			SEMICOLON, -1,
+			Sarg, RCBR,
 		},
 	},
 	{
 		.count = 2,
 		.result = Sargs,
 		.tokens = (enum Token_type[]){
-			Sargs, -1,
+			Sarg, -1,
 			Sargs, -1,
 		},
 	},
 
 	{
-		.count = 3,
+		.count = 4,
 		.result = Sarg,
 		.tokens = (enum Token_type[]){
 			Name, ASSIGN,
 			ASSIGN, -1,
-			E1, -1,
+			E1, SEMICOLON,
+			SEMICOLON, -1,
 		},
 	},
 	{
@@ -544,12 +544,17 @@ Node* synt(Lexer_result lex) {
 		char start_with = 0;
 
 		// printf("\n================\n");
+		// printf("%d %d\n", state.offset, lex.tokens_count);
+		// printf("%s %s %s\n",
+		//      token_type_names[state.lex.tokens[state.offset].type],
+		//      state.lex.tokens[state.offset].value,
+		//      token_type_names[state.lex.tokens[state.offset + 1].type]);
 		// for (int i = 0; i < state.stack.count; i++)
 		// 	print_node(state.stack.values[i], 0);
 		// printf("\n----------------\n");
 
 		for (int i = 0; i < sizeof(rules) / sizeof(Rule); i++) {
-			// printf("%d ", i);
+			// printf("%d %s ", i, token_type_names[rules[i].result]);
 			int size = check_rule(&state, node, rules[i]);
 
 			if (size == 0) {
@@ -624,10 +629,27 @@ void remove_unused_node(Node* root) {
 		remove_unused_node(save_childs[i]);
 	free(save_childs);
 
-	if (root->childs_count == 1) {
+	if (root->childs_count == 1 && !(
+	      root->token.type == Array ||
+	      root->token.type == Set ||
+	      root->token.type == Name
+	)) {
 		Node* child = root->childs[0];
 		*root = *child;
 		free(child);
+
+		return;
+	}
+
+	if (root->token.type == E ||
+	    root->token.type == E1 ||
+	    root->token.type == E2 ||
+	    root->token.type == E3 ||
+	    root->token.type == E4 ||
+	    root->token.type == E5 ||
+	    root->token.type == E6) {
+		root->token = root->childs[1]->token;
+		remove_node(root, root->childs[1]);
 
 		return;
 	}

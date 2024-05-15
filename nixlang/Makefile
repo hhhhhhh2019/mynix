@@ -15,7 +15,7 @@ endif
 
 
 ifeq ($(DEBUG),1)
-	CC_FLAGS += -g -DDEBUG
+	CC_FLAGS += -g3 -DDEBUG
 endif
 
 

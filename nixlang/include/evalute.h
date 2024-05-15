@@ -14,8 +14,9 @@ enum Object_type {
 	OBJECT_ARRAY,
 	OBJECT_SET,
 	OBJECT_FUNCTION,
+	OBJECT_FUNCTION_EXTERNAL,
 	OBJECT_VARIABLE,
-	OBJECT_VARIABLE_POINTER,
+	OBJECT_NAME,
 	OBJECT_OPERATION,
 };
 
@@ -27,6 +28,7 @@ enum Op_type {
 	OP_ELESS,
 	OP_MORE,
 	OP_EMORE,
+	OP_ASSIGN,
 	OP_SUM,
 	OP_SUB,
 	OP_MUL,
@@ -36,6 +38,7 @@ enum Op_type {
 	OP_XOR,
 	OP_NOT,
 	OP_DOT,
+	OP_CALL,
 };
 
 
@@ -75,13 +78,32 @@ typedef struct {
 } Object_function;
 
 typedef struct {
+	Object* (*body) (Object*);
+} Object_function_external;
+
+typedef struct {
+	unsigned int count;
+	Object** elems;
+} Object_array;
+
+typedef struct {
+	char* name;
+	Object* value;
+} Set_arg;
+
+typedef struct {
+	unsigned int count;
+	Set_arg* elems;
+} Object_set;
+
+typedef struct {
 	char* name;
 	Object* value;
 } Object_variable;
 
 typedef struct {
 	char* name;
-} Object_var_pointer;
+} Object_name;
 
 typedef struct {
 	enum Op_type type;
@@ -90,8 +112,15 @@ typedef struct {
 } Object_operation;
 
 
-extern Object** variables;
-extern unsigned int variables_count;
+struct Scope;
+typedef struct Scope {
+	struct Scope* parent;
+	Object_variable* variables;
+	unsigned int variables_count;
+} Scope;
+
+extern Scope* global_scope;
+extern Scope* current_scope;
 
 void init_def_vars();
 

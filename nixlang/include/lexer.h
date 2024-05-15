@@ -63,6 +63,7 @@ enum Token_type {
 	Set,
 	Sargs,
 	Sarg,
+	Sid,
 	Eval,
 };
 

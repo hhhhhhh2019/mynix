@@ -28,29 +28,40 @@ int main() {
 	// ;
 	
 
-	char* data =
-		"input: {"
-			"system.host = \"nixhost\";"
-			"system.arch = \"myarch\";"
-			"system.packages = ["
-				"input.pkgs.htop,"
-				"input.pkgs.git,"
-				"input.pkgs.zsh"
-			"];"
-			"system.users = {"
-				"alex = {"
-					"groups = [ \"wheel\", \"users\", \"alex\" ];"
-					"home = '/home/alex';"
-					"shell = input.pkgs.zsh;"
-					"modules = ["
-						"'./users/alex/alex.nix'"
-					"];"
-				"};"
-			"};"
-		"}"
-		"\n";
+	// char* data =
+	// 	"input: {"
+	// 		"system.host = \"nixhost\";"
+	// 		"system.arch = \"myarch\";"
+	// 		"system.packages = ["
+	// 			"input.pkgs.htop,"
+	// 			"input.pkgs.git,"
+	// 			"input.pkgs.zsh"
+	// 		"];"
+	// 		"system.users = {"
+	// 			"alex = {"
+	// 				"groups = [ \"wheel\", \"users\", \"alex\" ];"
+	// 				"home = '/home/alex';"
+	// 				"shell = input.pkgs.zsh;"
+	// 				"modules = ["
+	// 					"'./users/alex/alex.nix'"
+	// 				"];"
+	// 			"};"
+	// 		"};"
+	// 	"}"
+	// 	"\n";
 	
-	// char* data = "[1,2,3]\n";
+	char* data = "stdlib.atoi(\"123\")\n";
+
+	// char* data = 
+		// "{"
+		// 	"foo.bar = 3;"
+		// "}"
+		// "{"
+		// 	"foo = {"
+		// 		"bar = 3;"
+		// 	"};"
+		// "}"
+	// "\n";
 
 	Lexer_result lexer_res = lexer(data, "file");
 
@@ -62,19 +73,19 @@ int main() {
 	// }
 
 	Node* root = synt(lexer_res);
-	// print_node(root, 0);
+	print_node(root, 0);
 	
-	printf("digraph 1 {\n");
-	index_node(root, 0);
-	node_to_dot(root);
-	printf("}\n");
+	// printf("digraph 1 {\n");
+	// index_node(root, 0);
+	// node_to_dot(root);
+	// printf("}\n");
 	
-	// Object* oroot = node_to_object(root);
-	// print_object(oroot, 0);
-	//
-	// init_def_vars();
-	//
-	// Object* eval = evalute(oroot);
-	//
-	// print_object(eval, 0);
+	Object* oroot = node_to_object(root);
+	print_object(oroot, 0);
+
+	init_def_vars();
+
+	Object* eval = evalute(oroot);
+
+	print_object(eval, 0);
 }

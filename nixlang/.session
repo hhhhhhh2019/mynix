@@ -13,18 +13,22 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +53 main.c
-badd +596 synt.c
-badd +42 include/utils.h
-badd +51 include/lexer.h
-badd +247 lexer.c
-badd +60 include/synt.h
-badd +3 Makefile
+badd +1 main.c
+badd +1303 evalute.c
+badd +0 include/evalute.h
+badd +13 stdlib.c
 argglobal
 %argdel
-edit synt.c
+$argadd main.c
+$argadd evalute.c
+$argadd include/evalute.h
+edit stdlib.c
 argglobal
-balt include/synt.h
+if bufexists(fnamemodify("stdlib.c", ":p")) | buffer stdlib.c | else | edit stdlib.c | endif
+if &buftype ==# 'terminal'
+  silent file stdlib.c
+endif
+balt evalute.c
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -125,7 +129,7 @@ setlocal spellfile=
 setlocal spelllang=en
 setlocal spelloptions=noplainbuffer
 setlocal statuscolumn=
-setlocal statusline=%<%#lualine_c_inactive#\ synt.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ 596:23\ 
+setlocal statusline=%<%#lualine_c_inactive#\ stdlib.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ \ 13:30\ 
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
@@ -151,30 +155,12 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-602
-normal! zo
-603
-normal! zo
-623
-normal! zo
-627
-normal! zo
-637
-normal! zo
-638
-normal! zo
-641
-normal! zo
-646
-normal! zo
-656
-normal! zo
-let s:l = 596 - ((14 * winheight(0) + 19) / 39)
+let s:l = 13 - ((12 * winheight(0) + 18) / 36)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 596
-normal! 023|
+keepjumps 13
+normal! 030|
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
