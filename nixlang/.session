@@ -13,21 +13,24 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +1 main.c
-badd +1303 evalute.c
-badd +0 include/evalute.h
+badd +51 main.c
+badd +97 evalute.c
+badd +1 include/evalute.h
 badd +13 stdlib.c
 argglobal
 %argdel
 $argadd main.c
 $argadd evalute.c
 $argadd include/evalute.h
-edit stdlib.c
+edit main.c
+wincmd t
+let s:save_winminheight = &winminheight
+let s:save_winminwidth = &winminwidth
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
 argglobal
-if bufexists(fnamemodify("stdlib.c", ":p")) | buffer stdlib.c | else | edit stdlib.c | endif
-if &buftype ==# 'terminal'
-  silent file stdlib.c
-endif
 balt evalute.c
 setlocal keymap=
 setlocal noarabic
@@ -129,7 +132,7 @@ setlocal spellfile=
 setlocal spelllang=en
 setlocal spelloptions=noplainbuffer
 setlocal statuscolumn=
-setlocal statusline=%<%#lualine_c_inactive#\ stdlib.c\ %#lualine_c_inactive#%=%#lualine_c_inactive#\ \ 13:30\ 
+setlocal statusline=%#lualine_a_command#\ COMMAND\ %#lualine_transitional_lualine_a_command_to_lualine_b_command#%#lualine_b_command#\ main.c\ %#lualine_b_filetype_DevIconDefault_command#\ \ %#lualine_b_command#c\ %#lualine_b_command#%#lualine_b_diagnostics_warn_command#\ ����\ 1\ %#lualine_transitional_lualine_b_diagnostics_warn_command_to_lualine_c_normal#%<%#lualine_c_normal#\ \ master\ %#lualine_c_normal#%=%#lualine_transitional_lualine_a_command_to_lualine_c_normal#%#lualine_a_command#\ \ 51:2\ \ %#lualine_a_command#\ 56%%\ 
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
@@ -155,12 +158,12 @@ setlocal nowinfixheight
 setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
-let s:l = 13 - ((12 * winheight(0) + 18) / 36)
+let s:l = 51 - ((14 * winheight(0) + 18) / 36)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 13
-normal! 030|
+keepjumps 51
+normal! 0
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
@@ -168,6 +171,8 @@ endif
 unlet! s:wipebuf
 set winheight=1 winwidth=20
 let &shortmess = s:shortmess_save
+let &winminheight = s:save_winminheight
+let &winminwidth = s:save_winminwidth
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)

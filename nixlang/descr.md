@@ -2,7 +2,7 @@
 
 - Number ``123``
 - Float ``123.123``
-- String ``"example \"string\""``
+- String ``"example \"string\""`` ``""multiline string""``
 - Path ``/example/path\ with/space`` ``./modules/*``
 - Set 
 ``{
@@ -12,10 +12,4 @@
     };
 }``
 - Array
-``[a b c]``
-``[
-a
-b
-c d
-e
-]``
+``[a, b, c]``
