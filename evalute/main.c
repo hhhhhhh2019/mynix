@@ -1,6 +1,7 @@
 #include "lexer.h"
-#include "object.h"
 #include "synt.h"
+#include "object.h"
+#include "evalute.h"
 #include "utils.h"
 
 #include <stdio.h>
@@ -16,7 +17,8 @@ void print_object(Object*, int);
 
 int main() {
 	char* data =
-		"a.b.c = foo.bar(3 + 4) * 5";
+		// "1 + 2 + 3 + 4 + 5 + 6";
+		"\"hello \" + \"world\"";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -50,11 +52,18 @@ int main() {
 		.end = NULL,
 	};
 	malloc_info = &eval_malloc_info;
+
 	Object* object = node_to_object(syntax_result.root);
-	
 	print_object(object, 0);
 
-	wfree_all(lexer_result.malloc_info);
+	wfree_all(lexer_result.malloc_info); // we already dont need this
+
+
+	Object* eval = evalute(object);
+
+	print_object(eval, 0);
+
+
 	wfree_all(syntax_result.malloc_info);
 	wfree_all(eval_malloc_info);
 }

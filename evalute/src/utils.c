@@ -60,16 +60,11 @@ void* wrealloc(void* address, size_t size) {
 void wfree(void* address) {
 	Malloc_node* node = malloc_info->start;
 
-	printf("---------\n");
-
 	while (node != NULL) {
-		printf("%p %p\n", address, node->address);
 		if (node->address == address)
 			break;
 		node = node->next;
 	}
-
-	printf("%p\n\n", node);
 
 	assert(node != NULL);
 

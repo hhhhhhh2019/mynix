@@ -2,6 +2,7 @@
 #include "node.h"
 #include "token.h"
 #include "utils.h"
+#include <string.h>
 
 
 char* object_type_names[] = {
@@ -73,7 +74,7 @@ static Object* operation(Node* node, enum Op_type type) {
 	data->args = wmalloc(sizeof(void*) * data->count);
 
 	for (int i = 0; i < data->count; i++)
-		data->args[i] = node_to_object(node->childs[i]);
+		data->args[data->count-i-1] = node_to_object(node->childs[i]);
 
 	return result;
 }
@@ -124,8 +125,8 @@ Object* node_to_object(Node* node) {
 		result->data = wmalloc(sizeof(Object_string));
 
 		Object_string* data = result->data;
-
-		data->value = node->token.value;
+		data->value = wmalloc(strlen(node->token.value) + 1);
+		strcpy(data->value, node->token.value);
 	}
 
 	else if (node->token.type == PATH) {
@@ -133,8 +134,8 @@ Object* node_to_object(Node* node) {
 		result->data = wmalloc(sizeof(Object_path));
 
 		Object_path* data = result->data;
-
-		data->value = node->token.value;
+		data->value = wmalloc(strlen(node->token.value) + 1);
+		strcpy(data->value, node->token.value);
 	}
 
 	else if (node->token.type == Func_decl) {
@@ -165,8 +166,8 @@ Object* node_to_object(Node* node) {
 			result->data = wmalloc(sizeof(Object_name));
 
 			Object_name* data = result->data;
-
-			data->name = node->childs[0]->token.value;
+			data->name = wmalloc(strlen(node->token.value) + 1);
+			strcpy(data->name, node->token.value);
 		}
 	}
 
@@ -175,8 +176,8 @@ Object* node_to_object(Node* node) {
 		result->data = wmalloc(sizeof(Object_name));
 
 		Object_name* data = result->data;
-
-		data->name = node->token.value;
+		data->name = wmalloc(strlen(node->token.value) + 1);
+		strcpy(data->name, node->token.value);
 	}
 
 	else if (node->token.type == Array) {
