@@ -10,7 +10,7 @@ ifeq ($(DEBUG),1)
 endif
 
 
-SOURCES = src/lexer.c src/synt.c src/utils.c
+SOURCES = src/lexer.c src/synt.c src/utils.c src/object.c src/evalute.c
 OBJECTS = $(SOURCES:src/%.c=build/%.o)
 
 .PHONY: all clean test
@@ -29,3 +29,4 @@ test: $(OBJECTS)
 
 clean:
 	rm build/* -f
+	rm test -f

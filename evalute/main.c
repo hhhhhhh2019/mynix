@@ -1,5 +1,7 @@
 #include "lexer.h"
+#include "object.h"
 #include "synt.h"
+#include "utils.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -9,10 +11,12 @@ unsigned long index_node(Node*, unsigned long);
 void node_to_dot(Node*);
 void print_node(Node*, int);
 
+void print_object(Object*, int);
+
 
 int main() {
 	char* data =
-		"1 + 2 +";
+		"a.b.c = foo.bar(3 + 4) * 5";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -41,8 +45,18 @@ int main() {
 
 	print_node(syntax_result.root, 0);
 
+	Malloc_info eval_malloc_info = {
+		.start = NULL,
+		.end = NULL,
+	};
+	malloc_info = &eval_malloc_info;
+	Object* object = node_to_object(syntax_result.root);
+	
+	print_object(object, 0);
+
 	wfree_all(lexer_result.malloc_info);
 	wfree_all(syntax_result.malloc_info);
+	wfree_all(eval_malloc_info);
 }
 
 
@@ -96,4 +110,90 @@ unsigned long index_node(Node* node, unsigned long id) {
 		id = index_node(node->childs[i], id);
 
 	return id;
+}
+
+
+void print_object(Object* obj, int offset) {
+	for (int i = 0; i < offset; i++)
+		putc('\t', stdout);
+
+	if (obj == NULL) {
+		printf("NULL\n");
+		return;
+	}
+
+	// printf("\n%d\n", obj->type);
+	printf("%s ", object_type_names[obj->type]);
+
+	if (obj->type == OBJECT_NUMBER) {
+		printf("%li\n", ((Object_number*)obj->data)->value);
+		return;
+	}
+
+	if (obj->type == OBJECT_FLOAT_NUMBER) {
+		printf("%f\n", ((Object_float*)obj->data)->value);
+		return;
+	}
+
+	if (obj->type == OBJECT_STRING) {
+		printf("%s\n", ((Object_string*)obj->data)->value);
+		return;
+	}
+
+	if (obj->type == OBJECT_PATH) {
+		printf("%s\n", ((Object_path*)obj->data)->value);
+		return;
+	}
+
+	if (obj->type == OBJECT_BOOLEAN) {
+		printf("%d\n", ((Object_boolean*)obj->data)->value);
+		return;
+	}
+
+	if (obj->type == OBJECT_OPERATION) {
+		Object_operation* op = obj->data;
+
+		printf("%s\n", operation_type_names[op->type]);
+
+		for (int i = 0; i < op->count; i++)
+			print_object(op->args[i], offset + 1);
+
+		return;
+	}
+
+	if (obj->type == OBJECT_FUNCTION) {
+		Object_function* func = obj->data;
+
+		printf("%s\n", func->argument_name);
+		print_object(func->body, offset + 1);
+
+		return;
+	}
+
+	if (obj->type == OBJECT_NAME) {
+		Object_name* pointer = obj->data;
+
+		printf("%s\n", pointer->name);
+
+		return;
+	}
+
+	if (obj->type == OBJECT_VARIABLE) {
+		Object_variable* var = obj->data;
+
+		printf("%s\n", var->name);
+		print_object(var->value, offset + 1);
+
+		return;
+	}
+
+	if (obj->type == OBJECT_ARRAY) {
+		Object_array* arr = obj->data;
+		printf("%d\n", arr->count);
+
+		for (int i = 0; i < arr->count; i++)
+			print_object(arr->elems[i], offset + 1);
+
+		return;
+	}
 }

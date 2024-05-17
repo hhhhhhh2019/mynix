@@ -26,7 +26,7 @@ static inline Node* empty_node() {
 	return node;
 }
 
-static inline void remove_node(Node* root, Node* node) {
+static inline void detach_node(Node* root, Node* node) {
 	int id;
 
 	for (int i = 0; i < root->childs_count; i++) {
@@ -37,7 +37,7 @@ static inline void remove_node(Node* root, Node* node) {
 		break;
 	}
 
-	for (int i = id; i < root->childs_count; i++)
+	for (int i = id; i < root->childs_count - 1; i++)
 		root->childs[i] = root->childs[i + 1];
 
 	root->childs = wrealloc(root->childs,

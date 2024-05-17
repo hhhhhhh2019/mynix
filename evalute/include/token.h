@@ -64,6 +64,8 @@ enum Token_type {
 	Sarg,
 	Sid,
 	Eval,
+
+	TOKEN_TYPES_COUNT,
 };
 
 

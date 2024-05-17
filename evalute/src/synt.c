@@ -659,7 +659,7 @@ static void remove_unused_node(Node* root) {
 	    root->token.type == RSBR ||
 	    root->token.type == LCBR ||
 	    root->token.type == RCBR) {
-		remove_node(root->parent, root);
+		detach_node(root->parent, root);
 		return;
 	}
 
@@ -690,7 +690,7 @@ static void remove_unused_node(Node* root) {
 	    root->token.type == E5 ||
 	    root->token.type == E6) {
 		root->token = root->childs[1]->token;
-		remove_node(root, root->childs[1]);
+		detach_node(root, root->childs[1]);
 
 		return;
 	}
