@@ -38,7 +38,7 @@ tokens = [
     ["EXCLAMATION",  r"\!",                          set()],
     ["DOT",          r"\.",                          set()],
     ["COMMA",        r",",                           set()],
-    # ["EPSILON",      r"\.\.\.",                      set()],
+    ["EPSILON",      r"\.\.\.",                      set()],
     ["LBR",          r"(",                           set()],
     ["RBR",          r")",                           set()],
     ["LCBR",         r"{",                           set()],

@@ -17,8 +17,8 @@ void print_object(Object*, int);
 
 int main() {
 	char* data =
-		// "1 + 2 + 3 + 4 + 5 + 6";
-		"\"hello \" + \"world\"";
+		// "1 + 2 * 3 / 4";
+		"foo.bar 4 + 1";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -53,15 +53,15 @@ int main() {
 	};
 	malloc_info = &eval_malloc_info;
 
-	Object* object = node_to_object(syntax_result.root);
-	print_object(object, 0);
+	// Object* object = node_to_object(syntax_result.root);
+	// print_object(object, 0);
 
 	wfree_all(lexer_result.malloc_info); // we already dont need this
 
 
-	Object* eval = evalute(object);
-
-	print_object(eval, 0);
+	// Object* eval = evalute(object);
+	//
+	// print_object(eval, 0);
 
 
 	wfree_all(syntax_result.malloc_info);
@@ -74,7 +74,7 @@ void print_node(Node* node, int offset) {
 		putc('\t', stdout);
 
 	if (node == NULL) {
-		printf("NULL\n");
+		printf("NUL\n");
 		return;
 	}
 

@@ -144,8 +144,8 @@ Object* node_to_object(Node* node) {
 
 		Object_function* data = result->data;
 
-		data->argument_name = node->childs[0]->token.value;
-		data->body          = node_to_object(node->childs[1]);
+		data->argument_name = node->childs[1]->token.value;
+		data->body          = node_to_object(node->childs[0]);
 	}
 
 	else if (node->token.type == Name) {
@@ -166,8 +166,8 @@ Object* node_to_object(Node* node) {
 			result->data = wmalloc(sizeof(Object_name));
 
 			Object_name* data = result->data;
-			data->name = wmalloc(strlen(node->token.value) + 1);
-			strcpy(data->name, node->token.value);
+			data->name = wmalloc(strlen(node->childs[0]->token.value) + 1);
+			strcpy(data->name, node->childs[0]->token.value);
 		}
 	}
 

@@ -113,13 +113,237 @@ static Object* evalute_op_sum(Object* left, Object* right) {
 
 		return result;
 	}
+
+	if (left->type == OBJECT_PATH && right->type == OBJECT_STRING) {
+		char* a = ((Object_path*)   left->data)->value;
+		char* b = ((Object_string*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_PATH;
+		result->data = wmalloc(sizeof(Object_path));
+		((Object_path*)result->data)->value =
+		    wmalloc(strlen(a) + strlen(b) + 1);
+		strcpy(((Object_path*)result->data)->value, a);
+		strcat(((Object_path*)result->data)->value, b);
+
+		return result;
+	}
+
+	if (left->type == OBJECT_STRING && right->type == OBJECT_PATH) {
+		char* a = ((Object_string*)left->data)->value;
+		char* b = ((Object_path*) right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_PATH;
+		result->data = wmalloc(sizeof(Object_path));
+		((Object_path*)result->data)->value =
+		    wmalloc(strlen(a) + strlen(b) + 1);
+		strcpy(((Object_path*)result->data)->value, a);
+		strcat(((Object_path*)result->data)->value, b);
+
+		return result;
+	}
+
+	if (left->type == OBJECT_PATH && right->type == OBJECT_PATH) {
+		char* a = ((Object_path*) left->data)->value;
+		char* b = ((Object_path*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_PATH;
+		result->data = wmalloc(sizeof(Object_path));
+		((Object_path*)result->data)->value =
+		    wmalloc(strlen(a) + strlen(b) + 1);
+		strcpy(((Object_path*)result->data)->value, a);
+		strcat(((Object_path*)result->data)->value, b);
+
+		return result;
+	}
+
+	return NULL;
 }
+
+
+static Object* evalute_op_sub(Object* left, Object* right) {
+	if (left == NULL || right == NULL)
+		return NULL;
+
+	if (left->type == OBJECT_NUMBER && right->type == OBJECT_NUMBER) {
+		long a = ((Object_number*) left->data)->value;
+		long b = ((Object_number*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_NUMBER;
+		result->data = wmalloc(sizeof(Object_number));
+		((Object_number*)result->data)->value = a - b;
+
+		return result;
+	}
+
+	if (left->type == OBJECT_FLOAT_NUMBER && right->type == OBJECT_FLOAT_NUMBER) {
+		double a = ((Object_float*) left->data)->value;
+		double b = ((Object_float*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_FLOAT_NUMBER;
+		result->data = wmalloc(sizeof(Object_float));
+		((Object_float*)result->data)->value = a - b;
+
+		return result;
+	}
+
+	if (left->type == OBJECT_NUMBER && right->type == OBJECT_FLOAT_NUMBER) {
+		long   a =((Object_number*) left->data)->value;
+		double b = ((Object_float*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_FLOAT_NUMBER;
+		result->data = wmalloc(sizeof(Object_float));
+		((Object_float*)result->data)->value = (double)a - b;
+
+		return result;
+	}
+
+	if (left->type == OBJECT_FLOAT_NUMBER && right->type == OBJECT_NUMBER) {
+		double a = ((Object_float*) left->data)->value;
+		long   b =((Object_number*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_FLOAT_NUMBER;
+		result->data = wmalloc(sizeof(Object_float));
+		((Object_float*)result->data)->value = a - (double)b;
+
+		return result;
+	}
+
+	return NULL;
+}
+
+
+static Object* evalute_op_mul(Object* left, Object* right) {
+	if (left == NULL || right == NULL)
+		return NULL;
+
+	if (left->type == OBJECT_NUMBER && right->type == OBJECT_NUMBER) {
+		long a = ((Object_number*) left->data)->value;
+		long b = ((Object_number*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_NUMBER;
+		result->data = wmalloc(sizeof(Object_number));
+		((Object_number*)result->data)->value = a * b;
+
+		return result;
+	}
+
+	if (left->type == OBJECT_FLOAT_NUMBER && right->type == OBJECT_FLOAT_NUMBER) {
+		double a = ((Object_float*) left->data)->value;
+		double b = ((Object_float*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_FLOAT_NUMBER;
+		result->data = wmalloc(sizeof(Object_float));
+		((Object_float*)result->data)->value = a * b;
+
+		return result;
+	}
+
+	if (left->type == OBJECT_NUMBER && right->type == OBJECT_FLOAT_NUMBER) {
+		long   a =((Object_number*) left->data)->value;
+		double b = ((Object_float*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_NUMBER;
+		result->data = wmalloc(sizeof(Object_number));
+		((Object_number*)result->data)->value = (long)(a * b);
+
+		return result;
+	}
+
+	if (left->type == OBJECT_FLOAT_NUMBER && right->type == OBJECT_NUMBER) {
+		double a = ((Object_float*) left->data)->value;
+		long   b =((Object_number*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_FLOAT_NUMBER;
+		result->data = wmalloc(sizeof(Object_float));
+		((Object_float*)result->data)->value = a * (double)b;
+
+		return result;
+	}
+
+	return NULL;
+}
+
+
+static Object* evalute_op_div(Object* left, Object* right) {
+	if (left == NULL || right == NULL)
+		return NULL;
+
+	if (left->type == OBJECT_NUMBER && right->type == OBJECT_NUMBER) {
+		long a = ((Object_number*) left->data)->value;
+		long b = ((Object_number*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_NUMBER;
+		result->data = wmalloc(sizeof(Object_number));
+		((Object_number*)result->data)->value = a / b;
+
+		return result;
+	}
+
+	if (left->type == OBJECT_FLOAT_NUMBER && right->type == OBJECT_FLOAT_NUMBER) {
+		double a = ((Object_float*) left->data)->value;
+		double b = ((Object_float*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_FLOAT_NUMBER;
+		result->data = wmalloc(sizeof(Object_float));
+		((Object_float*)result->data)->value = a / b;
+
+		return result;
+	}
+
+	if (left->type == OBJECT_NUMBER && right->type == OBJECT_FLOAT_NUMBER) {
+		long   a =((Object_number*) left->data)->value;
+		double b = ((Object_float*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_NUMBER;
+		result->data = wmalloc(sizeof(Object_number));
+		((Object_number*)result->data)->value = (long)(a / b);
+
+		return result;
+	}
+
+	if (left->type == OBJECT_FLOAT_NUMBER && right->type == OBJECT_NUMBER) {
+		double a = ((Object_float*) left->data)->value;
+		long   b =((Object_number*)right->data)->value;
+
+		Object* result = wmalloc(sizeof(Object));
+		result->type = OBJECT_FLOAT_NUMBER;
+		result->data = wmalloc(sizeof(Object_float));
+		((Object_float*)result->data)->value = a / (double)b;
+
+		return result;
+	}
+
+	return NULL;
+}
+
 
 static Object* evalute_op(Object* object) {
 	Object_operation* op = object->data;
 
 	if (op->type == OP_SUM)
 		return evalute_op_sum(evalute(op->args[0]), evalute(op->args[1]));
+	if (op->type == OP_SUB)
+		return evalute_op_sub(evalute(op->args[0]), evalute(op->args[1]));
+	if (op->type == OP_MUL)
+		return evalute_op_mul(evalute(op->args[0]), evalute(op->args[1]));
+	if (op->type == OP_DIV)
+		return evalute_op_div(evalute(op->args[0]), evalute(op->args[1]));
+
+	return NULL;
 }
 
 

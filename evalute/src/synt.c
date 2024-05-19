@@ -178,13 +178,53 @@ static Rule rules[] = {
 	},
 
 	{
-		.count = 4,
+		.count = 2,
 		.result = Call,
 		.tokens = (enum Token_type[]){
 			E6, LBR,
-			LBR, -1,
-			E1, RBR,
-			RBR, -1,
+			// LBR, -1,
+			E1, -1,
+			// RBR, -1,
+		},
+	},
+	{
+		.count = 2,
+		.result = Call,
+		.tokens = (enum Token_type[]){
+			E6, DEC_NUMBER,
+			// LBR, -1,
+			E1, -1,
+			// RBR, -1,
+		},
+	},
+	{
+		.count = 2,
+		.result = Call,
+		.tokens = (enum Token_type[]){
+			E6, FLOAT_NUMBER,
+			// LBR, -1,
+			E1, -1,
+			// RBR, -1,
+		},
+	},
+	{
+		.count = 2,
+		.result = Call,
+		.tokens = (enum Token_type[]){
+			E6, UNDEFINED,
+			// LBR, -1,
+			E1, -1,
+			// RBR, -1,
+		},
+	},
+	{
+		.count = 2,
+		.result = Call,
+		.tokens = (enum Token_type[]){
+			E6, RCBR,
+			// LBR, -1,
+			E1, -1,
+			// RBR, -1,
 		},
 	},
 
@@ -207,6 +247,55 @@ static Rule rules[] = {
 			Sargs, IN,
 			IN, -1,
 			E1, -1,
+		},
+	},
+	{
+		.count = 5,
+		.result = Func_decl,
+		.tokens = (enum Token_type[]){
+			LCBR, -1,
+			Fargs, RCBR,
+			RCBR, COLON,
+			COLON, -1,
+			E1, -1,
+		},
+	},
+	{
+		.count = 8,
+		.result = Func_decl,
+		.tokens = (enum Token_type[]){
+			LCBR, -1,
+			Fargs, RCBR,
+			RCBR, COLON,
+			COLON, LET,
+			LET, -1,
+			Sargs, IN,
+			IN, -1,
+			E1, -1,
+		},
+	},
+
+	{
+		.count = 1,
+		.result = Fargs,
+		.tokens = (enum Token_type[]){
+			UNDEFINED, RCBR,
+		},
+	},
+	{
+		.count = 1,
+		.result = Fargs,
+		.tokens = (enum Token_type[]){
+			EPSILON, RCBR
+		},
+	},
+	{
+		.count = 3,
+		.result = Fargs,
+		.tokens = (enum Token_type[]){
+			UNDEFINED, COMMA,
+			COMMA, -1,
+			Fargs, RCBR,
 		},
 	},
 
@@ -561,15 +650,15 @@ Synt_result synt(Lexer_result lex) {
 		char find = 0;
 		char start_with = 0;
 
-		// printf("\n================\n");
-		// printf("%d %d\n", state.offset, lex.tokens_count);
-		// printf("%s %s\n",
-		//      token_type_names[state.lex.tokens[state.offset].type],
-		//      state.lex.tokens[state.offset].value);
-		//      // token_type_names[state.lex.tokens[state.offset + 1].type]);
-		// for (int i = 0; i < state.stack.count; i++)
-		// 	print_node(state.stack.values[i], 0);
-		// printf("\n----------------\n");
+		printf("\n================\n");
+		printf("%d %d\n", state.offset, lex.tokens_count);
+		printf("%s %s\n",
+		     token_type_names[state.lex.tokens[state.offset].type],
+		     state.lex.tokens[state.offset].value);
+		     // token_type_names[state.lex.tokens[state.offset + 1].type]);
+		for (int i = 0; i < state.stack.count; i++)
+			print_node(state.stack.values[i], 0);
+		printf("\n----------------\n");
 
 		for (int i = 0; i < sizeof(rules) / sizeof(Rule); i++) {
 			// printf("%d %s ", i, token_type_names[rules[i].result]);
@@ -590,7 +679,7 @@ Synt_result synt(Lexer_result lex) {
 			// printf("\n");
 		}
 
-		// printf("%d %d\n", find, start_with);
+		printf("%d %d\n", find, start_with);
 
 		if (find) {
 			node->next_token = lex.tokens[state.offset].type;
