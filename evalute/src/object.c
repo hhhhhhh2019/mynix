@@ -239,5 +239,9 @@ Object* node_to_object(Node* node) {
 		}
 	}
 
+	else if (node->token.type == Set) {
+		
+	}
+
 	return result;
 }
