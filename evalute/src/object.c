@@ -14,6 +14,7 @@ char* object_type_names[] = {
 	[OBJECT_ARRAY] = "OBJECT_ARRAY",
 	[OBJECT_SET] = "OBJECT_SET",
 	[OBJECT_FUNCTION] = "OBJECT_FUNCTION",
+	[OBJECT_FUNCTION_SET] = "OBJECT_FUNCTION_SET",
 	[OBJECT_FUNCTION_EXTERNAL] = "OBJECT_FUNCTION_EXTERNAL",
 	[OBJECT_VARIABLE] = "OBJECT_VARIABLE",
 	[OBJECT_NAME] = "OBJECT_NAME",
@@ -139,13 +140,48 @@ Object* node_to_object(Node* node) {
 	}
 
 	else if (node->token.type == Func_decl) {
-		result->type = OBJECT_FUNCTION;
-		result->data = wmalloc(sizeof(Object_function));
+		if (node->childs[1]->token.type == UNDEFINED) {
+			result->type = OBJECT_FUNCTION;
+			result->data = wmalloc(sizeof(Object_function));
 
-		Object_function* data = result->data;
+			Object_function* data = result->data;
 
-		data->argument_name = node->childs[1]->token.value;
-		data->body          = node_to_object(node->childs[0]);
+			data->argument_name = node->childs[1]->token.value;
+			data->body          = node_to_object(node->childs[0]);
+		} else {
+			result->type = OBJECT_FUNCTION_SET;
+			result->data = wmalloc(sizeof(Object_function_set));
+
+			Object_function_set* data = result->data;
+
+			data->body = node_to_object(node->childs[0]);
+			data->allow_other = 0;
+			data->args_count = 0;
+			data->args_names = wmalloc(0);
+
+			Node* arg = node->childs[1];
+
+			while (1) {
+				if (arg->token.type == Fargs) {
+					if (arg->childs[1]->token.type == EPSILON)
+						data->allow_other = 1;
+					else {
+						data->args_names = wrealloc(data->args_names, sizeof(char*) * (++data->args_count));
+						data->args_names[data->args_count - 1] = arg->childs[1]->token.value;
+					}
+				} else {
+					if (arg->token.type == EPSILON)
+						data->allow_other = 1;
+					else {
+						data->args_names = wrealloc(data->args_names, sizeof(char*) * (++data->args_count));
+						data->args_names[data->args_count - 1] = arg->token.value;
+					}
+					break;
+				}
+
+				arg = arg->childs[0];
+			}
+		}
 	}
 
 	else if (node->token.type == Name) {

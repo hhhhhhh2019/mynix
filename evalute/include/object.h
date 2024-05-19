@@ -14,6 +14,7 @@ enum Object_type {
 	OBJECT_ARRAY,
 	OBJECT_SET,
 	OBJECT_FUNCTION,
+	OBJECT_FUNCTION_SET,
 	OBJECT_FUNCTION_EXTERNAL,
 	OBJECT_VARIABLE,
 	OBJECT_NAME,
@@ -74,6 +75,13 @@ typedef struct {
 	char* argument_name;
 	Object* body;
 } Object_function;
+
+typedef struct {
+	Object* body;
+	char allow_other;
+	int args_count;
+	char** args_names;
+} Object_function_set;
 
 typedef struct {
 	Object* (*body) (Object*);

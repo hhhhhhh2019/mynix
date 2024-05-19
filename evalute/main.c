@@ -18,7 +18,8 @@ void print_object(Object*, int);
 int main() {
 	char* data =
 		// "1 + 2 * 3 / 4";
-		"foo.bar 4 + 1";
+		"({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
+		// "(x: x + 1) 2";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -53,8 +54,8 @@ int main() {
 	};
 	malloc_info = &eval_malloc_info;
 
-	// Object* object = node_to_object(syntax_result.root);
-	// print_object(object, 0);
+	Object* object = node_to_object(syntax_result.root);
+	print_object(object, 0);
 
 	wfree_all(lexer_result.malloc_info); // we already dont need this
 
@@ -174,6 +175,21 @@ void print_object(Object* obj, int offset) {
 		Object_function* func = obj->data;
 
 		printf("%s\n", func->argument_name);
+		print_object(func->body, offset + 1);
+
+		return;
+	}
+
+	if (obj->type == OBJECT_FUNCTION_SET) {
+		Object_function_set* func = obj->data;
+		printf("%d %d\n", func->args_count, func->allow_other);
+
+		for (int i = 0; i < func->args_count; i++) {
+			for (int i = 0; i < offset + 1; i++)
+				putc('\t', stdout);
+			printf("%s\n", func->args_names[i]);
+		}
+
 		print_object(func->body, offset + 1);
 
 		return;
