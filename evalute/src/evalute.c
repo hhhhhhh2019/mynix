@@ -380,7 +380,50 @@ static Object* evalute_op_call(Object* func, Object* arg) {
 	}
 
 	else if (func->type == OBJECT_FUNCTION_SET) {
+		if (arg->type != OBJECT_SET)
+			return NULL;
 
+		Object_function_set* data = func->data;
+		Object_set* args = arg->data;
+
+		Scope scope = {
+			.parent = current_scope,
+			.variables_count = data->args_count,
+			.variables = wmalloc(sizeof(Object_variable) * data->args_count)
+		};
+
+		for (int i = 0; i < args->count; i++) {
+			char found = 0;
+
+			for (int j = 0; j < data->args_count; j++) {
+				if (strcmp(args->elems[i].name, data->args_names[j]) != 0)
+					continue;
+
+				found = 1;
+				break;
+			}
+
+			if (found == 0) {
+				if (data->allow_other == 1)
+					continue;
+
+				return NULL;
+			}
+
+			// scope.variables = wrealloc(scope.variables, sizeof(Object_variable) * (++scope.variables_count));
+			scope.variables[i].name = args->elems[i].name;
+			scope.variables[i].value = args->elems[i].value;
+		}
+
+		current_scope = &scope;
+
+		Object* result = evalute(data->body);
+
+		current_scope = current_scope->parent;
+
+		wfree(scope.variables);
+
+		return result;
 	}
 
 	return NULL;

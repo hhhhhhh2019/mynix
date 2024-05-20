@@ -168,14 +168,16 @@ Object* node_to_object(Node* node) {
 						data->allow_other = 1;
 					else {
 						data->args_names = wrealloc(data->args_names, sizeof(char*) * (++data->args_count));
-						data->args_names[data->args_count - 1] = arg->childs[1]->token.value;
+						data->args_names[data->args_count - 1] = wmalloc(strlen(arg->childs[1]->token.value) + 1);
+						strcpy(data->args_names[data->args_count - 1], arg->childs[1]->token.value);
 					}
 				} else {
 					if (arg->token.type == EPSILON)
 						data->allow_other = 1;
 					else {
 						data->args_names = wrealloc(data->args_names, sizeof(char*) * (++data->args_count));
-						data->args_names[data->args_count - 1] = arg->token.value;
+						data->args_names[data->args_count - 1] = wmalloc(strlen(arg->token.value) + 1);
+						strcpy(data->args_names[data->args_count - 1], arg->token.value);
 					}
 					break;
 				}
@@ -262,7 +264,9 @@ Object* node_to_object(Node* node) {
 				Node* nname = arg->childs[1]->childs[2];
 
 				while (1) {
-					stack_push(name_stack, nname->childs[0]->token.value);
+					char* s = wmalloc(strlen(nname->childs[0]->token.value) + 1);
+					strcpy(s, nname->childs[0]->token.value);
+					stack_push(name_stack, s);
 
 					if (nname->childs_count == 1)
 						break;
@@ -306,7 +310,9 @@ Object* node_to_object(Node* node) {
 				Node* nname = arg->childs[2];
 
 				while (1) {
-					stack_push(name_stack, nname->childs[0]->token.value);
+					char* s = wmalloc(strlen(nname->childs[0]->token.value) + 1);
+					strcpy(s, nname->childs[0]->token.value);
+					stack_push(name_stack, s);
 
 					if (nname->childs_count == 1)
 						break;

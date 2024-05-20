@@ -1,1 +1,2 @@
-make evalute.c/node_to_object simpler
+make object.c/node_to_object simpler
+object.c/node_to_object check function_set args repeat

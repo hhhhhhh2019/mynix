@@ -18,8 +18,8 @@ void print_object(Object*, int);
 int main() {
 	char* data =
 		// "1 + 2 * 3 / 4";
-		// "({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
-		"(x: x + 1) 2";
+		"({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
+		// "(x: x * x + 1) 2";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
