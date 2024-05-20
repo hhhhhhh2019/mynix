@@ -120,5 +120,8 @@ typedef struct {
 
 Object* node_to_object(Node*);
 
+Object* set_get(Object_set* set, char* name);
+void set_set(Object_set* set, char* name, Object* value);
+
 
 #endif

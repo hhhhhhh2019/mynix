@@ -31,7 +31,7 @@
 
 #define stack_push(stack, value) do { \
 	stack.values = wrealloc(stack.values, \
-		(++stack.count) * sizeof(stack.values[0]));\
+		(++stack.count) * sizeof(stack.values[0])); \
 	stack.values[stack.count - 1] = value; \
 } while (0)
 

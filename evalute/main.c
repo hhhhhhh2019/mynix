@@ -18,8 +18,9 @@ void print_object(Object*, int);
 int main() {
 	char* data =
 		// "1 + 2 * 3 / 4";
-		"({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
+		// "({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
 		// "(x: x + 1) 2";
+		"{b = 1; a = 2; c = 3; foo.bar = 1; foo.var = 2;}";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -66,7 +67,7 @@ int main() {
 
 
 	wfree_all(syntax_result.malloc_info);
-	wfree_all(eval_malloc_info);
+	// wfree_all(eval_malloc_info);
 }
 
 
@@ -132,7 +133,6 @@ void print_object(Object* obj, int offset) {
 		return;
 	}
 
-	// printf("\n%d\n", obj->type);
 	printf("%s ", object_type_names[obj->type]);
 
 	if (obj->type == OBJECT_NUMBER) {
@@ -218,6 +218,21 @@ void print_object(Object* obj, int offset) {
 
 		for (int i = 0; i < arr->count; i++)
 			print_object(arr->elems[i], offset + 1);
+
+		return;
+	}
+
+	if (obj->type == OBJECT_SET) {
+		Object_set* set = obj->data;
+		printf("%d\n", set->count);
+
+		for (int i = 0; i < set->count; i++) {
+			Set_arg arg = set->elems[i];
+			for (int i = 0; i < offset + 1; i++)
+				putc('\t', stdout);
+			printf("%s\n", arg.name);
+			print_object(arg.value, offset + 2);
+		}
 
 		return;
 	}
