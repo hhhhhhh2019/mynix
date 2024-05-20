@@ -19,8 +19,7 @@ int main() {
 	char* data =
 		// "1 + 2 * 3 / 4";
 		// "({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
-		// "(x: x + 1) 2";
-		"{b = 1; a = 2; c = 3; foo.bar = 1; foo.var = 2;}";
+		"(x: x + 1) 2";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -61,13 +60,13 @@ int main() {
 	wfree_all(lexer_result.malloc_info); // we already dont need this
 
 
-	// Object* eval = evalute(object);
-	//
-	// print_object(eval, 0);
+	Object* eval = evalute(object);
+
+	print_object(eval, 0);
 
 
 	wfree_all(syntax_result.malloc_info);
-	// wfree_all(eval_malloc_info);
+	wfree_all(eval_malloc_info);
 }
 
 

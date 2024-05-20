@@ -146,7 +146,8 @@ Object* node_to_object(Node* node) {
 
 			Object_function* data = result->data;
 
-			data->argument_name = node->childs[1]->token.value;
+			data->argument_name = wmalloc(strlen(node->childs[1]->token.value) + 1);
+			strcpy(data->argument_name, node->childs[1]->token.value);
 			data->body          = node_to_object(node->childs[0]);
 		} else {
 			result->type = OBJECT_FUNCTION_SET;
@@ -276,6 +277,11 @@ Object* node_to_object(Node* node) {
 					Object* val = set_get(curr_set, name);
 
 					if (val != NULL) {
+						if (val->type != OBJECT_SET) {
+							printf("Error\n");
+							return NULL;
+						}
+
 						curr_set = val->data;
 						continue;
 					}

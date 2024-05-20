@@ -10,6 +10,19 @@
 Scope* current_scope = NULL;
 
 
+Object* get_from_scope(Scope* scope, char* name) {
+	if (scope == NULL)
+		return NULL;
+
+	for (int i = 0; i  < scope->variables_count; i++) {
+		if (strcmp(scope->variables[i].name, name) == 0)
+			return scope->variables[i].value;
+	}
+
+	return get_from_scope(scope->parent, name);
+}
+
+
 void init_default_variables() {
 	current_scope = wmalloc(sizeof(Scope));
 	current_scope->parent = NULL;
@@ -331,6 +344,49 @@ static Object* evalute_op_div(Object* left, Object* right) {
 }
 
 
+static Object* evalute_name(Object* name) {
+	Object_name* data = name->data;
+
+	return get_from_scope(current_scope, data->name);
+}
+
+
+static Object* evalute_op_call(Object* func, Object* arg) {
+	if (func->type == OBJECT_FUNCTION) {
+		Object_function* data = func->data;
+
+		Scope scope = {
+			.parent = current_scope,
+			.variables_count = 1,
+			.variables = wmalloc(sizeof(Object_variable) * 1)
+		};
+
+		scope.variables[0].name = data->argument_name;
+		scope.variables[0].value = arg;
+
+		current_scope = &scope;
+
+		Object* result = evalute(data->body);
+
+		current_scope = current_scope->parent;
+
+		wfree(scope.variables);
+
+		return result;
+	}
+
+	else if (func->type == OBJECT_FUNCTION_EXTERNAL) {
+
+	}
+
+	else if (func->type == OBJECT_FUNCTION_SET) {
+
+	}
+
+	return NULL;
+}
+
+
 static Object* evalute_op(Object* object) {
 	Object_operation* op = object->data;
 
@@ -342,6 +398,32 @@ static Object* evalute_op(Object* object) {
 		return evalute_op_mul(evalute(op->args[0]), evalute(op->args[1]));
 	if (op->type == OP_DIV)
 		return evalute_op_div(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_EQ)
+	// 	return evalute_op_eq(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_NEQ)
+	// 	return evalute_op_neq(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_LESS)
+	// 	return evalute_op_less(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_ELESS)
+	// 	return evalute_op_eless(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_MORE)
+	// 	return evalute_op_more(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_EMORE)
+	// 	return evalute_op_emore(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_ASSIGN)
+	// 	return evalute_op_assign(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_AND)
+	// 	return evalute_op_and(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_OR)
+	// 	return evalute_op_or(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_XOR)
+	// 	return evalute_op_xor(evalute(op->args[0]), evalute(op->args[1]));
+	// if (op->type == OP_NOT)
+	// 	return evalute_op_not(evalute(op->args[0]));
+	// if (op->type == OP_DOT)
+	// 	return evalute_op_dot(evalute(op->args[0]), evalute(op->args[1]));
+	if (op->type == OP_CALL)
+		return evalute_op_call(evalute(op->args[0]), evalute(op->args[1]));
 
 	return NULL;
 }
@@ -351,9 +433,17 @@ Object* evalute(Object* object) {
 	if (object->type == OBJECT_NUMBER ||
 	    object->type == OBJECT_FLOAT_NUMBER ||
 	    object->type == OBJECT_STRING ||
-	    object->type == OBJECT_PATH) {
+	    object->type == OBJECT_PATH ||
+	    object->type == OBJECT_ARRAY ||
+	    object->type == OBJECT_SET ||
+	    object->type == OBJECT_FUNCTION ||
+	    object->type == OBJECT_FUNCTION_EXTERNAL ||
+	    object->type == OBJECT_FUNCTION_SET) {
 		return object;
 	}
+
+	if (object->type == OBJECT_NAME)
+		return evalute_name(object);
 
 	if (object->type == OBJECT_OPERATION)
 		return evalute_op(object);
