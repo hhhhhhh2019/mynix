@@ -351,6 +351,24 @@ static Object* evalute_name(Object* name) {
 }
 
 
+static Object* evalute_op_dot(Object* left, Object* right) {
+	char* name = ((Object_name*)right->data)->name;
+
+	if (left->type == OBJECT_SET) {
+		Object_set* set = left->data;
+
+		for (int i = 0; i < set->count; i++) {
+			if (strcmp(set->elems[i].name, name) == 0)
+				return set->elems[i].value;
+		}
+
+		return NULL;
+	}
+
+	return NULL;
+}
+
+
 static Object* evalute_op_call(Object* func, Object* arg) {
 	if (func->type == OBJECT_FUNCTION) {
 		Object_function* data = func->data;
@@ -376,7 +394,9 @@ static Object* evalute_op_call(Object* func, Object* arg) {
 	}
 
 	else if (func->type == OBJECT_FUNCTION_EXTERNAL) {
+		Object_function_external* data = func->data;
 
+		return data->body(arg);
 	}
 
 	else if (func->type == OBJECT_FUNCTION_SET) {
@@ -463,8 +483,8 @@ static Object* evalute_op(Object* object) {
 	// 	return evalute_op_xor(evalute(op->args[0]), evalute(op->args[1]));
 	// if (op->type == OP_NOT)
 	// 	return evalute_op_not(evalute(op->args[0]));
-	// if (op->type == OP_DOT)
-	// 	return evalute_op_dot(evalute(op->args[0]), evalute(op->args[1]));
+	if (op->type == OP_DOT)
+		return evalute_op_dot(evalute(op->args[1]), op->args[0]);
 	if (op->type == OP_CALL)
 		return evalute_op_call(evalute(op->args[0]), evalute(op->args[1]));
 
@@ -490,4 +510,6 @@ Object* evalute(Object* object) {
 
 	if (object->type == OBJECT_OPERATION)
 		return evalute_op(object);
+
+	return NULL;
 }

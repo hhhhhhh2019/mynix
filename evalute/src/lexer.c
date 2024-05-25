@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "utils.h"
 
+// #include </usr/include/stdlib.h>
 #include <stdlib.h>
 #include <string.h>
 

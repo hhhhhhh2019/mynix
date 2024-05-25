@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "libs.h"
 #include "synt.h"
 #include "object.h"
 #include "evalute.h"
@@ -18,8 +19,9 @@ void print_object(Object*, int);
 int main() {
 	char* data =
 		// "1 + 2 * 3 / 4";
-		"({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
+		// "({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
 		// "(x: x * x + 1) 2";
+		"stdlib.len(\"hello world!\")";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -59,6 +61,9 @@ int main() {
 
 	wfree_all(lexer_result.malloc_info); // we already dont need this
 
+
+	init_default_variables();
+	init_stdlib();
 
 	Object* eval = evalute(object);
 
