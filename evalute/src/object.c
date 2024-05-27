@@ -250,6 +250,9 @@ Object* node_to_object(Node* node) {
 		data->count = 0;
 		data->elems = wmalloc(0);
 
+		if (node->childs_count == 0)
+			return result;
+
 		Node* arg = node->childs[0];
 
 		while (1) {

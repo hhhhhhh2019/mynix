@@ -26,6 +26,9 @@ void print_node(Node*, int);
 
 
 static int check_rule(Synt_state* state, Node* result, Rule rule) {
+	if (state->lex.tokens_count - state->offset + state->stack.count < rule.count)
+		return -1;
+
 	int max_len = -1;
 
 	for (int i = 0; i <
@@ -125,23 +128,12 @@ static Rule rules[] = {
 	},
 
 	{
-		.count = 2,
-		.result = Set,
+		.count = 1,
+		.result = Vargs,
 		.tokens = (enum Token_type[]){
-			LCBR, RCBR,
-			RCBR, -1,
+			Sarg, IN,
 		},
 	},
-	{
-		.count = 3,
-		.result = Set,
-		.tokens = (enum Token_type[]){
-			LCBR, -1,
-			Sargs, RCBR,
-			RCBR, -1,
-		},
-	},
-
 	{
 		.count = 1,
 		.result = Sargs,
@@ -151,9 +143,18 @@ static Rule rules[] = {
 	},
 	{
 		.count = 2,
+		.result = Vargs,
+		.tokens = (enum Token_type[]){
+			Sarg, UNDEFINED,
+			Vargs, -1,
+		},
+	},
+
+	{
+		.count = 2,
 		.result = Sargs,
 		.tokens = (enum Token_type[]){
-			Sarg, -1,
+			Sarg, UNDEFINED,
 			Sargs, -1,
 		},
 	},
@@ -169,11 +170,12 @@ static Rule rules[] = {
 		},
 	},
 	{
-		.count = 2,
+		.count = 3,
 		.result = Sarg,
 		.tokens = (enum Token_type[]){
 			INHERIT, UNDEFINED,
-			UNDEFINED, -1,
+			Name, SEMICOLON,
+			SEMICOLON, -1,
 		},
 	},
 
@@ -238,18 +240,6 @@ static Rule rules[] = {
 		},
 	},
 	{
-		.count = 6,
-		.result = Func_decl,
-		.tokens = (enum Token_type[]){
-			UNDEFINED, COLON,
-			COLON, LET,
-			LET, -1,
-			Sargs, IN,
-			IN, -1,
-			E1, -1,
-		},
-	},
-	{
 		.count = 5,
 		.result = Func_decl,
 		.tokens = (enum Token_type[]){
@@ -260,18 +250,34 @@ static Rule rules[] = {
 			E1, -1,
 		},
 	},
+
 	{
-		.count = 8,
-		.result = Func_decl,
+		.count = 2,
+		.result = Set,
+		.tokens = (enum Token_type[]){
+			LCBR, RCBR,
+			RCBR, -1,
+		},
+	},
+	{
+		.count = 6,
+		.result = Set,
+		.tokens = (enum Token_type[]){
+			LET, -1,
+			Vargs, IN,
+			IN, -1,
+			LCBR, -1,
+			Sargs, RCBR,
+			RCBR, -1,
+		},
+	},
+	{
+		.count = 3,
+		.result = Set,
 		.tokens = (enum Token_type[]){
 			LCBR, -1,
-			Fargs, RCBR,
-			RCBR, COLON,
-			COLON, LET,
-			LET, -1,
-			Sargs, IN,
-			IN, -1,
-			E1, -1,
+			Sargs, RCBR,
+			RCBR, -1,
 		},
 	},
 
@@ -650,15 +656,15 @@ Synt_result synt(Lexer_result lex) {
 		char find = 0;
 		char start_with = 0;
 
-		// printf("\n================\n");
-		// printf("%d %d\n", state.offset, lex.tokens_count);
-		// printf("%s %s\n",
-		//      token_type_names[state.lex.tokens[state.offset].type],
-		//      state.lex.tokens[state.offset].value);
-		//      // token_type_names[state.lex.tokens[state.offset + 1].type]);
-		// for (int i = 0; i < state.stack.count; i++)
-		// 	print_node(state.stack.values[i], 0);
-		// printf("\n----------------\n");
+		printf("\n================\n");
+		printf("%d %d\n", state.offset, lex.tokens_count);
+		printf("%s %s\n",
+		     token_type_names[state.lex.tokens[state.offset].type],
+		     state.lex.tokens[state.offset].value);
+		     // token_type_names[state.lex.tokens[state.offset + 1].type]);
+		for (int i = 0; i < state.stack.count; i++)
+			print_node(state.stack.values[i], 0);
+		printf("\n----------------\n");
 
 		for (int i = 0; i < sizeof(rules) / sizeof(Rule); i++) {
 			// printf("%d %s ", i, token_type_names[rules[i].result]);
@@ -700,10 +706,10 @@ Synt_result synt(Lexer_result lex) {
 			}
 
 			ERROR("%s: %lu:%lu, unexpected token: %s\n",
-			    lex.tokens[state.offset-1].filename,
-			    lex.tokens[state.offset-1].line,
-			    lex.tokens[state.offset-1].column,
-			    token_type_names[lex.tokens[state.offset-1].type]);
+			    lex.tokens[state.offset].filename,
+			    lex.tokens[state.offset].line,
+			    lex.tokens[state.offset].column,
+			    token_type_names[lex.tokens[state.offset].type]);
 			return result;
 		}
 		// printf("%d %d\n", state.offset, lex.tokens_count);
@@ -747,7 +753,9 @@ static void remove_unused_node(Node* root) {
 	    root->token.type == LSBR ||
 	    root->token.type == RSBR ||
 	    root->token.type == LCBR ||
-	    root->token.type == RCBR) {
+	    root->token.type == RCBR ||
+	    root->token.type == IN ||
+	    root->token.type == LET) {
 		detach_node(root->parent, root);
 		return;
 	}

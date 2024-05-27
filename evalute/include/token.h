@@ -48,6 +48,7 @@ enum Token_type {
 	TERMINALS_COUNT,
 
 	EOI,
+	Vargs,
 	E,
 	E1,
 	E2,

@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "token.h"
 #include "utils.h"
 
 // #include </usr/include/stdlib.h>
@@ -49,6 +50,7 @@ char* token_type_names[] = {
 	[MORE] = "MORE",
 
 	[EOI] = "EOI",
+	[Vargs] = "Vargs",
 	[E] = "E",
 	[E1] = "E1",
 	[E2] = "E2",
@@ -210,6 +212,7 @@ Lexer_result lexer(char* data, char* filename) {
 			if (rules[state - 1][257] == STRING || rules[state - 1][257] == PATH) {
 				char* new_string = wmalloc(strlen(string) - 1);
 				memcpy(new_string, string + 1, strlen(string) - 2);
+				new_string[strlen(string) - 2] = 0;
 				wfree(string);
 				string = new_string;
 			}

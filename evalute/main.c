@@ -3,6 +3,7 @@
 #include "synt.h"
 #include "object.h"
 #include "evalute.h"
+#include "token.h"
 #include "utils.h"
 
 #include <stdio.h>
@@ -21,7 +22,26 @@ int main() {
 		// "1 + 2 * 3 / 4";
 		// "({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
 		// "(x: x * x + 1) 2";
-		"stdlib.len(\"hello world!\")";
+		// "stdlib.len(\"hello world!\")";
+// "let version = \"unstable\"; in {"
+// "  repos = {\n"
+// "    base = {\n"
+// "      url = \"github:mynix/repo_base\";\n"
+// "      inherit version;\n"
+// "    };\n"
+// "    desktop = {\n"
+// "      url = \"github:mynix/repo_desktop\";\n"
+// // "      inherit version;\n"
+// "    };\n"
+// "  };\n"
+// "\n"
+// "  config = { base, desktop, ... }: {\n"
+// "    network.hostname = \"qwertyuiop\";\n"
+// "    system.timezone = \"Europe/Moscow\";\n"
+// "    system.default_locale = \"ru_RU.UTF-8\";\n"
+// "  };\n"
+// "}";
+	"let a = 5; in {inherit a;}";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -85,9 +105,10 @@ void print_node(Node* node, int offset) {
 	}
 
 	if (strlen(node->token.value) == 0)
-		printf("%s\n", token_type_names[node->token.type]);
+		printf("%s ", token_type_names[node->token.type]);
 	else
-		printf("%s\n", node->token.value);
+		printf("%s ", node->token.value);
+	printf("%s\n", token_type_names[node->next_token]);
 
 	// if (token_type_names[node->next_token] != NULL)
 	// 	printf("%s\n", token_type_names[node->next_token]);
