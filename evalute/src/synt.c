@@ -158,6 +158,14 @@ static Rule rules[] = {
 			Sargs, -1,
 		},
 	},
+	{
+		.count = 2,
+		.result = Sargs,
+		.tokens = (enum Token_type[]){
+			Sarg, INHERIT,
+			Sargs, -1,
+		},
+	},
 
 	{
 		.count = 4,

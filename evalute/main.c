@@ -31,7 +31,7 @@ int main() {
 // "    };\n"
 // "    desktop = {\n"
 // "      url = \"github:mynix/repo_desktop\";\n"
-// // "      inherit version;\n"
+// "      inherit version;\n"
 // "    };\n"
 // "  };\n"
 // "\n"
@@ -41,7 +41,10 @@ int main() {
 // "    system.default_locale = \"ru_RU.UTF-8\";\n"
 // "  };\n"
 // "}";
-	"let a = 5; in {inherit a;}";
+	"{\n"
+	"  b = 3;\n"
+	"  inherit a;\n"
+	"}";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
@@ -69,6 +72,8 @@ int main() {
 	}
 
 	print_node(syntax_result.root, 0);
+
+	return 0;
 
 	Malloc_info eval_malloc_info = {
 		.start = NULL,
