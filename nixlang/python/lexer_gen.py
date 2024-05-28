@@ -22,6 +22,7 @@ tokens = [
     # ["REC",          r"rec",                         def_undef.copy()],
     ["WITH",         r"with",                        def_undef.copy()],
     ["INHERIT",      r"inherit",                     def_undef.copy()],
+    ["IMPORT",       r"import",                      def_undef.copy()],
     ["IF",           r"if",                          def_undef.copy()],
     ["ELSE",         r"else",                        def_undef.copy()],
     ["THEN",         r"then",                        def_undef.copy()],

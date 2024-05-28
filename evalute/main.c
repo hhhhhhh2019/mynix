@@ -23,10 +23,14 @@ int main() {
 		// "({ foo, bar, ... }: foo + bar) { foo = 5; bar = 6; }";
 		// "(x: x * x + 1) 2";
 		// "stdlib.len(\"hello world!\")";
-// "let version = \"unstable\"; in {"
+// "{ ... }: let version = \"unstable\"; in {"
 // "  repos = {\n"
+// "    os = {\n"
+// "      url = \"github:mynix/repo_os\";\n"
+// "      inherit version;\n"
+// "    };\n"
 // "    base = {\n"
-// "      url = \"github:mynix/repo_base\";\n"
+// "      url = \"github:mynix/repo_base\";"
 // "      inherit version;\n"
 // "    };\n"
 // "    desktop = {\n"
@@ -39,23 +43,28 @@ int main() {
 // "    network.hostname = \"qwertyuiop\";\n"
 // "    system.timezone = \"Europe/Moscow\";\n"
 // "    system.default_locale = \"ru_RU.UTF-8\";\n"
+// "\n"
+// "    users = {\n"
+// "       alex = {\n"
+// "         home = '/home/alex';\n"
+// "         shell = \"zsh\";\n"
+// "         modules = ['./users/alex/*'];"
+// "       };\n"
+// "    };\n"
 // "  };\n"
 // "}";
-	"{\n"
-	"  b = 3;\n"
-	"  inherit a;\n"
-	"}";
+	"{ a, b, c }: { import { a, c } './some path/file'; }";
 
 	Lexer_result lexer_result = lexer(data, "file");
 
-	for (int i = 0; i < lexer_result.tokens_count; i++) {
-		printf("%s %lu:%lu %s %s\n",
-			lexer_result.tokens[i].filename,
-			lexer_result.tokens[i].line,
-			lexer_result.tokens[i].column,
-			lexer_result.tokens[i].value,
-			token_type_names[lexer_result.tokens[i].type]);
-	}
+	// for (int i = 0; i < lexer_result.tokens_count; i++) {
+	// 	printf("%s %lu:%lu %s %s\n",
+	// 		lexer_result.tokens[i].filename,
+	// 		lexer_result.tokens[i].line,
+	// 		lexer_result.tokens[i].column,
+	// 		lexer_result.tokens[i].value,
+	// 		token_type_names[lexer_result.tokens[i].type]);
+	// }
 
 	if (lexer_result.ok == 0) {
 		wfree_all(lexer_result.malloc_info);
@@ -71,8 +80,13 @@ int main() {
 		return 1;
 	}
 
-	print_node(syntax_result.root, 0);
+	// index_node(syntax_result.root, 0);
+	// printf("digraph 1 {\n");
+	// node_to_dot(syntax_result.root);
+	// printf("}");
 
+	print_node(syntax_result.root, 0);
+	
 	return 0;
 
 	Malloc_info eval_malloc_info = {

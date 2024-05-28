@@ -14,6 +14,7 @@ enum Token_type {
 	WITH,
 	
 	INHERIT,
+	IMPORT,
 	IF,
 	ELSE,
 	THEN,
@@ -48,6 +49,7 @@ enum Token_type {
 	TERMINALS_COUNT,
 
 	EOI,
+	Vdef,
 	Vargs,
 	E,
 	E1,
@@ -68,6 +70,7 @@ enum Token_type {
 	Sarg,
 	Sid,
 	Eval,
+	Import,
 
 	TOKEN_TYPES_COUNT,
 };
