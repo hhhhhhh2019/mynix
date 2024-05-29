@@ -81,6 +81,11 @@ static Object* operation(Node* node, enum Op_type type) {
 }
 
 
+static void set(Node* node, Object* result) {
+	
+}
+
+
 Object* node_to_object(Node* node) {
 	if (node->token.type == PLUS ||
 	    node->token.type == MINUS ||
@@ -243,117 +248,118 @@ Object* node_to_object(Node* node) {
 	}
 
 	else if (node->token.type == Set) {
-		result->type = OBJECT_SET;
-		result->data = wmalloc(sizeof(Object_set));
-
-		Object_set* data = result->data;
-		data->count = 0;
-		data->elems = wmalloc(0);
-
-		if (node->childs_count == 0)
-			return result;
-
-		Node* arg = node->childs[0];
-
-		while (1) {
-			Stack(char*) name_stack = {
-				.count = 0,
-				.values = wmalloc(0)
-			};
-
-			if (arg->token.type == Sargs) {
-				Object* value = node_to_object(arg->childs[1]->childs[0]);
-
-				Node* nname = arg->childs[1]->childs[2];
-
-				while (1) {
-					char* s = wmalloc(strlen(nname->childs[0]->token.value) + 1);
-					strcpy(s, nname->childs[0]->token.value);
-					stack_push(name_stack, s);
-
-					if (nname->childs_count == 1)
-						break;
-
-					nname = nname->childs[2];
-				}
-
-				Object_set* curr_set = data;
-
-				for (int i = 0; i < name_stack.count - 1; i++) {
-					char* name = stack_pop(name_stack);
-					Object* val = set_get(curr_set, name);
-
-					if (val != NULL) {
-						if (val->type != OBJECT_SET) {
-							printf("Error\n");
-							return NULL;
-						}
-
-						curr_set = val->data;
-						continue;
-					}
-
-					val = wmalloc(sizeof(Object));
-					val->type = OBJECT_SET;
-					val->data = wmalloc(sizeof(Object_set));
-
-					Object_set* sval = val->data;
-					sval->count = 0;
-					sval->elems = wmalloc(0);
-
-					set_set(curr_set, name, val);
-
-					curr_set = sval;
-				}
-
-				set_set(curr_set, stack_pop(name_stack), value);
-			} else {
-				Object* value = node_to_object(arg->childs[0]);
-
-				Node* nname = arg->childs[2];
-
-				while (1) {
-					char* s = wmalloc(strlen(nname->childs[0]->token.value) + 1);
-					strcpy(s, nname->childs[0]->token.value);
-					stack_push(name_stack, s);
-
-					if (nname->childs_count == 1)
-						break;
-
-					nname = nname->childs[2];
-				}
-
-				Object_set* curr_set = data;
-
-				for (int i = 0; i < name_stack.count - 1; i++) {
-					char* name = stack_pop(name_stack);
-					Object* val = set_get(curr_set, name);
-
-					if (val != NULL) {
-						curr_set = val->data;
-						continue;
-					}
-
-					val = wmalloc(sizeof(Object));
-					val->type = OBJECT_SET;
-					val->data = wmalloc(sizeof(Object_set));
-
-					Object_set* sval = val->data;
-					sval->count = 0;
-					sval->elems = wmalloc(0);
-
-					set_set(curr_set, name, val);
-
-					curr_set = sval;
-				}
-
-				set_set(curr_set, stack_pop(name_stack), value);
-
-				break;
-			}
-
-			arg = arg->childs[0];
-		}
+		set(node, result);
+		// result->type = OBJECT_SET;
+		// result->data = wmalloc(sizeof(Object_set));
+		//
+		// Object_set* data = result->data;
+		// data->count = 0;
+		// data->elems = wmalloc(0);
+		//
+		// if (node->childs_count == 0)
+		// 	return result;
+		//
+		// Node* arg = node->childs[0];
+		//
+		// while (1) {
+		// 	Stack(char*) name_stack = {
+		// 		.count = 0,
+		// 		.values = wmalloc(0)
+		// 	};
+		//
+		// 	if (arg->token.type == Sargs) {
+		// 		Object* value = node_to_object(arg->childs[1]->childs[0]);
+		//
+		// 		Node* nname = arg->childs[1]->childs[2];
+		//
+		// 		while (1) {
+		// 			char* s = wmalloc(strlen(nname->childs[0]->token.value) + 1);
+		// 			strcpy(s, nname->childs[0]->token.value);
+		// 			stack_push(name_stack, s);
+		//
+		// 			if (nname->childs_count == 1)
+		// 				break;
+		//
+		// 			nname = nname->childs[2];
+		// 		}
+		//
+		// 		Object_set* curr_set = data;
+		//
+		// 		for (int i = 0; i < name_stack.count - 1; i++) {
+		// 			char* name = stack_pop(name_stack);
+		// 			Object* val = set_get(curr_set, name);
+		//
+		// 			if (val != NULL) {
+		// 				if (val->type != OBJECT_SET) {
+		// 					printf("Error\n");
+		// 					return NULL;
+		// 				}
+		//
+		// 				curr_set = val->data;
+		// 				continue;
+		// 			}
+		//
+		// 			val = wmalloc(sizeof(Object));
+		// 			val->type = OBJECT_SET;
+		// 			val->data = wmalloc(sizeof(Object_set));
+		//
+		// 			Object_set* sval = val->data;
+		// 			sval->count = 0;
+		// 			sval->elems = wmalloc(0);
+		//
+		// 			set_set(curr_set, name, val);
+		//
+		// 			curr_set = sval;
+		// 		}
+		//
+		// 		set_set(curr_set, stack_pop(name_stack), value);
+		// 	} else {
+		// 		Object* value = node_to_object(arg->childs[0]);
+		//
+		// 		Node* nname = arg->childs[2];
+		//
+		// 		while (1) {
+		// 			char* s = wmalloc(strlen(nname->childs[0]->token.value) + 1);
+		// 			strcpy(s, nname->childs[0]->token.value);
+		// 			stack_push(name_stack, s);
+		//
+		// 			if (nname->childs_count == 1)
+		// 				break;
+		//
+		// 			nname = nname->childs[2];
+		// 		}
+		//
+		// 		Object_set* curr_set = data;
+		//
+		// 		for (int i = 0; i < name_stack.count - 1; i++) {
+		// 			char* name = stack_pop(name_stack);
+		// 			Object* val = set_get(curr_set, name);
+		//
+		// 			if (val != NULL) {
+		// 				curr_set = val->data;
+		// 				continue;
+		// 			}
+		//
+		// 			val = wmalloc(sizeof(Object));
+		// 			val->type = OBJECT_SET;
+		// 			val->data = wmalloc(sizeof(Object_set));
+		//
+		// 			Object_set* sval = val->data;
+		// 			sval->count = 0;
+		// 			sval->elems = wmalloc(0);
+		//
+		// 			set_set(curr_set, name, val);
+		//
+		// 			curr_set = sval;
+		// 		}
+		//
+		// 		set_set(curr_set, stack_pop(name_stack), value);
+		//
+		// 		break;
+		// 	}
+		//
+		// 	arg = arg->childs[0];
+		// }
 	}
 
 	return result;

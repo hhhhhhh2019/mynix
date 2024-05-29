@@ -19,6 +19,7 @@ enum Object_type {
 	OBJECT_VARIABLE,
 	OBJECT_NAME,
 	OBJECT_OPERATION,
+	OBJECT_IMPORT,
 };
 
 enum Op_type {

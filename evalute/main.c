@@ -87,7 +87,7 @@ int main() {
 
 	print_node(syntax_result.root, 0);
 	
-	return 0;
+	// return 0;
 
 	Malloc_info eval_malloc_info = {
 		.start = NULL,
