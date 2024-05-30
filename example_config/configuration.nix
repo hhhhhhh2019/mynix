@@ -1,33 +1,17 @@
-default_version = "lastest" # lastest, release, stable
+default_version = "unstable" # unstable, release, stable
 
 
-{}: {
+{
 	repos = {
 		os = {
-			url = "github:mynix/os_repo";
-			inherit default_version;
-		};
-
-		base = {
-			url = "github:mynix/base_repo";
+			url = "file:///home/alex/progs/pkg/repos/os";
 			inherit default_version;
 		};
 	};
 
-	config = { os, base }: {
+	config = { os }: {
 		system.hostName = "qwertyuiop";
 		system.timeZone = "Europe/Moscow";
-		system.defaultLocale = "ru_RU.UTF-8";
-
-		import "./modules/*";
-
-		users = {
-			user = {
-				home = "/home/user";
-				shell = base.pkgs.zsh;
-				groups = [ "wheel", "uucp" ];
-				import "./users/user/*";
-			};
-		};
+		# system.defaultLocale = "ru_RU.UTF-8"; пока непонятно, как это должно работать
 	} done
-} done
+}
