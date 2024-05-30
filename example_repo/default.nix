@@ -1,5 +1,12 @@
-setup = { config }:
+setup = {}: {
 	
+} done
+
+
+config = { config }:
+	result = []
+
+	return result
 done
 
 
@@ -7,4 +14,5 @@ done
 	name = "test";
 
 	inherit setup;
+	inherit config;
 }
