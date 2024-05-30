@@ -4,7 +4,8 @@
 |-|-|
 NUMBER|`[+-]?[0-9]+`
 FLOAT_NUMBER|`[+-]?([1-9][0-9]*[eE][1-9][0-9]*\|(([1-9][0-9]*\.)\|(\.[0-9]+))([0-9]*)?([eE][\-\+]?[1-9][0-9]*)?)`
-STRING|`"([^\\"]\|\\\\\|\\")*"`
+STRING|`"([^\\"\n]\|\\\\\|\\")*"`
+STRING|`''([^\\"]\|\\\\\|\\")*''`
 LBR|`\(`
 RBR|`\)`
 LCBR|`\{`
@@ -38,10 +39,12 @@ IMPORT|`import`
 IF|`if`
 ELSE|`else`
 THEN|`then`
-FUNCTION|`function`
 FOR|`for`
 IN|`in`
 DONE|`done`
+RETURN|`return`
+SPACE|`\s+`
+COMMENT|`#.*\n`
 
 
 # Нетерминалы
@@ -53,12 +56,17 @@ Name|`UNDEFINED`
 Array|`[ ]`
 Array|`[ Aargs ]`
 Array|`[ Aargs , ]`
+Array|`with Name [ ]`
+Array|`with Name [ Aargs ]`
+Array|`with Name [ Aargs , ]`
 Aargs|`Aarg`
 Aargs|`Aarg , Aargs`
 Aarg|`Value`
 Aarg|`Value`
 Set|`{ }`
 Set|`{ Sargs }`
+Set|`with Name { }`
+Set|`with Name { Sargs }`
 Sargs|`Sarg`
 Sargs|`Sarg Sargs`
 Sarg|`Name = Value ;`
@@ -68,11 +76,12 @@ Call|`Name ( )`
 Call|`Name ( Cargs )`
 Cargs|`Cargs , Value`
 Cargs|`Value`
-Func_decl|`function ( Fargs ) Body done`
-Func_decl|`function ( ) Body done`
+Func_decl|`{ Fargs } : Body done`
+Func_decl|`{ } : Body done`
 Fargs|`Farg`
 Fargs|`Farg , Fargs`
 Farg|`UNDEFINED`
+Farg|`...`
 Value|`NUMBER`
 Value|`FLOAT_NUMBER`
 Value|`STRING`
@@ -90,6 +99,7 @@ Expr|`Name = E1`
 Expr|`for UNDEFINED in Value Body done`
 Expr|`if E1 then Body done`
 Expr|`if E1 then Body else Body done`
+Expr|`return E1`
 Expr|`E1`
 E1|`if E1 then E1 else E1`
 E1|`E2`
@@ -110,3 +120,51 @@ E4|`E4 - E4`
 E5|`Value`
 E5|`E5 * E5`
 E5|`E5 / E5`
+
+# Некоторые особенности
+
+
+## Модули
+
+Каждый файл представляет из себя функцию без аргументов.
+Если результатом выполнения такого файла является функция, то используется результат её выполнения. Причём, такой функции передаются аргументы функции, выполняемой в данный момент.
+
+
+### Импорты
+
+
+#### Файл a.nix
+
+```
+return {
+    a = 1;
+    b.c = 2;
+}
+```
+
+#### Файл b.nix
+
+```
+return {
+    foo = 1;
+    bar = 2;
+    import "./a.nix";
+}
+```
+
+Вернёт
+
+```
+{
+    foo = 1;
+    bar = 2;
+    a = 1;
+    b = {
+        c = 2;
+    };
+}
+```
+
+## Циклы for
+
+Проходится можно только по элементам массива или аттрибутам именованного множества.
