@@ -1,0 +1,3 @@
+[submodule "repos/os/base"]
+	path = repos/os/base
+	url = ./repos/os/base
