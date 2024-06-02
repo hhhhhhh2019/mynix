@@ -24,7 +24,6 @@ AMPERSAND|`\&`
 PIPE|`\|`
 CARET|`\^`
 EXCLAMATION|`\!`
-EPSILON|`\.\.\.`
 ASSIGN|`=`
 EQUALS|`==`
 NOT_EQUALS|`!=`
@@ -32,17 +31,13 @@ LESS|`<`
 LESS_EQUALS|`<=`
 MORE|`>`
 MORE_EQUALS|`>=`
-RETURN|`return`
 INHERIT|`inherit`
-WITH|`with`
 IMPORT|`import`
 IF|`if`
 ELSE|`else`
 THEN|`then`
-FOR|`for`
+LET|`let`
 IN|`in`
-DONE|`done`
-RETURN|`return`
 SPACE|`\s+`
 COMMENT|`#.*\n`
 
