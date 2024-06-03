@@ -156,23 +156,46 @@ def FANode_from_char(node: Node) -> FANode:
     return FANode(node.paral, set())
 
 
+def FANode_from_node(node: Node) -> FANode | FAGroup:
+    if len(node.seq) == 0:
+        return FANode_from_char(node)
+    return FA_from_group(node)
+
+
 def FA_from_group(node: Node) -> FAGroup:
     result = FAGroup([], [], [])
 
     for i in node.seq:
         count = max(1, i.min if i.max == -1 else i.max)
+        size = 1
 
         for j in range(count):
-            fanode = FANode_from_char(i)
-            fanode.next.add(len(result.nodes) + 1)
+            fanode = FANode_from_node(i)
 
-            if i.min <= j:
-                fanode.can_zero = True
+            if isinstance(fanode, FAGroup):
+                result.nodes[-1].next.update(
+                    set([len(result.nodes) + k for k in fanode.inputs]))
+                for m in fanode.nodes:
+                    m.next = set([len(result.nodes) + k for k in m.next])
 
-            result.nodes.append(fanode)
+                if i.min <= j:
+                    for m in fanode.nodes:
+                        m.can_zero = True
+
+                result.nodes += fanode.nodes
+
+                size = len(fanode.nodes)
+
+            else:
+                fanode.next.add(len(result.nodes) + 1)
+
+                if i.min <= j:
+                    fanode.can_zero = True
+
+                result.nodes.append(fanode)
 
         if i.max == -1:
-            result.nodes[-1].next.add(len(result.nodes) - 1)
+            result.nodes[-1].next.add(len(result.nodes) - size)
 
     for i in range(len(result.nodes)-2, -1, -1):
         j = 0
@@ -208,7 +231,7 @@ def FA_from_group(node: Node) -> FAGroup:
         if len(result.nodes) in i.next:
             result.outputs.append(id)
 
-    pprint(result)
+    return result
 
 
 def FA_from_regex(ex: str) -> list:
@@ -220,8 +243,9 @@ def FA_from_regex(ex: str) -> list:
 
     pprint(node)
 
-    FA_from_group(node)
+    group = FA_from_group(node)
+    pprint(group)
 
 
 # FA_from_regex("(abc(123\\d){1,3})+")
-FA_from_regex("a{3,5}b+c?")
+FA_from_regex(r"abc(123){2,5}")
