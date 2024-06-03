@@ -173,8 +173,9 @@ def FA_from_group(node: Node) -> FAGroup:
             fanode = FANode_from_node(i)
 
             if isinstance(fanode, FAGroup):
-                result.nodes[-1].next.update(
-                    set([len(result.nodes) + k for k in fanode.inputs]))
+                if len(result.nodes) != 0:
+                    result.nodes[-1].next.update(
+                        set([len(result.nodes) + k for k in fanode.inputs]))
                 for m in fanode.nodes:
                     m.next = set([len(result.nodes) + k for k in m.next])
 
@@ -247,5 +248,5 @@ def FA_from_regex(ex: str) -> list:
     pprint(group)
 
 
-# FA_from_regex("(abc(123\\d){1,3})+")
-FA_from_regex(r"abc(123){2,5}")
+FA_from_regex("(abc(123\\d){1,3})+")
+# FA_from_regex(r"abc(123){2,5}")
