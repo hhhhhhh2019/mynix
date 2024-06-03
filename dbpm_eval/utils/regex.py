@@ -46,6 +46,7 @@ def parse_modifier():
             elif c != ',':
                 print("Error")
             n2 = parse_number()
+            expression.pop(0)
             return (n1, n2)
     return (0, 0)
 
@@ -136,9 +137,9 @@ def FA_from_regex(ex: str) -> list:
 
     expression = list(ex)
 
-    node = parse_group(False)
+    node = parse_group(False).seq[0]
 
     pprint(node)
 
 
-FA_from_regex("(\\dabc)+he*ll[abc]{2,5}o")
+FA_from_regex("(abc(123\\d){1,3})+")
