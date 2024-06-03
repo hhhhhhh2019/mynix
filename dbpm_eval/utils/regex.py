@@ -23,6 +23,8 @@ class FAGroup:
 @dataclass
 class FANode:
     value: set
+    next: set
+    can_zero: bool = False
 
 
 expression: list = []
@@ -33,7 +35,7 @@ def parse_number():
 
     s = ""
 
-    while len(expression) > 0 and expression[0] in "0123456789":
+    while len(expression) > 0 and expression[0] in "-0123456789":
         s += expression.pop(0)
 
     return int(s)
@@ -66,7 +68,7 @@ def parse_modifier():
     return (0, 0)
 
 
-def parse_set():
+def parse_set() -> Node:
     global expression
 
     node = Node(1, 1, set(), [])
@@ -81,16 +83,16 @@ def parse_set():
         if c == ']':
             break
 
-        if c == '(':
-            node.paral.add(parse_group())
+        # if c == '(':
+        #     node.paral.add(parse_group())
 
-        elif c == "\\":
+        if c == "\\":
             c = expression.pop(0)
 
             if c == 'd':
-                node.paral += list("0123456789")
+                node.paral.update(set("0123456789"))
             elif c == 's':
-                node.paral += list(" \n\t\r")
+                node.paral.update(set(" \n\t\r"))
 
         else:
             node.paral.add(c)
@@ -98,7 +100,7 @@ def parse_set():
     return node
 
 
-def parse_group(must_br=True):
+def parse_group(must_br=True) -> Node:
     global expression
 
     node = Node(1, 1, set(), [])
@@ -151,11 +153,62 @@ def parse_group(must_br=True):
 
 
 def FANode_from_char(node: Node) -> FANode:
-    return FANode(node.paral)
+    return FANode(node.paral, set())
 
 
-def FA_from_group(node: Node) -> FANode:
-    pass
+def FA_from_group(node: Node) -> FAGroup:
+    result = FAGroup([], [], [])
+
+    for i in node.seq:
+        count = max(1, i.min if i.max == -1 else i.max)
+
+        for j in range(count):
+            fanode = FANode_from_char(i)
+            fanode.next.add(len(result.nodes) + 1)
+
+            if i.min <= j:
+                fanode.can_zero = True
+
+            result.nodes.append(fanode)
+
+        if i.max == -1:
+            result.nodes[-1].next.add(len(result.nodes) - 1)
+
+    for i in range(len(result.nodes)-2, -1, -1):
+        j = 0
+        next_list = list(result.nodes[i].next)
+
+        while j < len(result.nodes[i].next):
+            id = next_list[j]
+
+            if id == len(result.nodes):
+                j += 1
+                continue
+
+            if not result.nodes[id].can_zero:
+                j += 1
+                continue
+
+            if result.nodes[id].next.issubset(result.nodes[i].next):
+                j += 1
+                continue
+
+            result.nodes[i].next.update(result.nodes[id].next)
+            next_list = list(result.nodes[i].next)
+
+            j = 0
+
+    for id, i in enumerate(result.nodes):
+        result.inputs.append(id)
+
+        if not i.can_zero:
+            break
+
+    for id, i in enumerate(result.nodes):
+        if len(result.nodes) in i.next:
+            result.outputs.append(id)
+
+    pprint(result)
 
 
 def FA_from_regex(ex: str) -> list:
@@ -167,6 +220,8 @@ def FA_from_regex(ex: str) -> list:
 
     pprint(node)
 
+    FA_from_group(node)
+
 
 # FA_from_regex("(abc(123\\d){1,3})+")
-FA_from_regex("[(abc)123]")
+FA_from_regex("a{3,5}b+c?")
