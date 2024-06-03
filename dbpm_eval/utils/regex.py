@@ -9,6 +9,21 @@ class Node:
     paral: set
     seq: list
 
+    def __hash__(self):
+        return hash((self.min, self.max, tuple(self.paral), tuple(self.seq)))
+
+
+@dataclass
+class FAGroup:
+    inputs: list
+    outputs: list
+    nodes: list
+
+
+@dataclass
+class FANode:
+    value: set
+
 
 expression: list = []
 
@@ -66,7 +81,10 @@ def parse_set():
         if c == ']':
             break
 
-        if c == "\\":
+        if c == '(':
+            node.paral.add(parse_group())
+
+        elif c == "\\":
             c = expression.pop(0)
 
             if c == 'd':
@@ -132,14 +150,23 @@ def parse_group(must_br=True):
     return node
 
 
+def FANode_from_char(node: Node) -> FANode:
+    return FANode(node.paral)
+
+
+def FA_from_group(node: Node) -> FANode:
+    pass
+
+
 def FA_from_regex(ex: str) -> list:
     global expression
 
     expression = list(ex)
 
-    node = parse_group(False).seq[0]
+    node = parse_group(False)
 
     pprint(node)
 
 
-FA_from_regex("(abc(123\\d){1,3})+")
+# FA_from_regex("(abc(123\\d){1,3})+")
+FA_from_regex("[(abc)123]")
