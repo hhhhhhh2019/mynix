@@ -118,6 +118,9 @@ def parse_group(must_br=True) -> Node:
         if c == '[':
             result.data.append(parse_set())
 
+        elif c == '(':
+            result.data.append(parse_group())
+
         elif c == '\\':
             c = expression.pop(0)
 
@@ -148,5 +151,14 @@ def FA_from_regex(ex: str) -> list:
     pprint(node)
 
 
-FA_from_regex(r"[(a?b)(b*c)123]")
+FA_from_regex(r"[+-]?[([123456789]\d*[eE][123456789]\d*)([([123456789]\d*\.)(\.\d+)])](\d*)?([eE][\-\+]?[123456789]\d*)?")
 # FA_from_regex(r"[+-]?([123456789]\d*[eE][123456789]\d*|(([123456789]\d*\.)|(\.\d+))(\d*)?([eE][\-\+]?[123456789]\d*)?)")
+# [+-]?(
+#       [123456789]\d*[eE][123456789]\d* |
+#       (
+#           ([123456789]\d*\.) |
+#           (\.\d+)
+#       )
+#       (\d*)?
+#       ([eE][\-\+]?[123456789]\d*)?
+# )
