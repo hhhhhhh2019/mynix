@@ -154,6 +154,26 @@ def FA_from_set(node: Node) -> FA:
     if type(node.data) is str:
         return FA({0}, {0}, [FANode(set(node.data), set())])
 
+    result = FA(set(), set(), [])
+
+    for i in node.data:
+        if type(i) is str:
+            result.nodes.append(FANode(set(i), set()))
+            result.inputs.update([len(result.nodes)-1])
+            result.outputs.update([len(result.nodes)-1])
+        else:
+            fa = FA_from_node(i)
+            fa.inputs = set(j + len(result.nodes) for j in fa.inputs)
+            fa.outputs = set(j + len(result.nodes) for j in fa.outputs)
+            for node in fa.nodes:
+                node.next = set(i + len(result.nodes) for i in node.next)
+
+            result.nodes += fa.nodes
+            result.inputs.update(fa.inputs)
+            result.outputs.update(fa.outputs)
+
+    return result
+
 
 def FA_from_group(node: Node) -> FA:
     result = FA(set(), set(), [])
@@ -168,8 +188,10 @@ def FA_from_group(node: Node) -> FA:
 
         if n.max == -1:
             count = n.min if n.min != 0 else 1
+
             for i in range(count):
                 fas.append(deepcopy(cnodeo))
+
             if n.min == 0:
                 fas[-1].can_zero = True
 
@@ -248,15 +270,13 @@ def FA_from_regex(ex: str) -> list:
 
     node = parse_group(False)
 
-    pprint(node)
-
     fanode = FA_from_group(node)
 
-    pprint(fanode)
+    return fanode
 
 
-FA_from_regex(r"(ab){1,3}4")
-# FA_from_regex(r"(123)+abc")
+# FA_from_regex(r"(123)?(abc){1,4}456")
+FA_from_regex(r"[a(123)]+hq")
 # FA_from_regex(r"[+-]?[([123456789]\d*[eE][123456789]\d*)([([123456789]\d*\.)(\.\d+)])](\d*)?([eE][\-\+]?[123456789]\d*)?")
 # FA_from_regex(r"[+-]?([123456789]\d*[eE][123456789]\d*|(([123456789]\d*\.)|(\.\d+))(\d*)?([eE][\-\+]?[123456789]\d*)?)")
 # [+-]?(
