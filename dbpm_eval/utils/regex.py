@@ -20,6 +20,7 @@ class FA:
     nodes: list
     can_zero: bool = False
     next: set = field(default_factory=lambda: set())
+    id: int = 0
 
 
 @dataclass
@@ -158,9 +159,12 @@ def FA_from_group(node: Node) -> FA:
     result = FA(set(), set(), [])
 
     fas = []
+    fid = 0
 
     for n in node.data:
         cnodeo = FA_from_node(n)
+        cnodeo.id = fid
+        fid += 1
 
         if n.max == -1:
             count = n.min if n.min != 0 else 1
@@ -191,7 +195,7 @@ def FA_from_group(node: Node) -> FA:
 
     for id, fa in enumerate(fas):
         for i in range(id + 1, len(fas)):
-            if fas[i].nodes != fa.nodes:
+            if fas[i].id != fa.id:
                 fa.next.update([i])
             elif i - id == 1:
                 fa.next.update([i])
@@ -251,8 +255,8 @@ def FA_from_regex(ex: str) -> list:
     pprint(fanode)
 
 
-# FA_from_regex(r"123(abc)+456")
-FA_from_regex(r"12{2,4}3")
+FA_from_regex(r"(ab){1,3}4")
+# FA_from_regex(r"(123)+abc")
 # FA_from_regex(r"[+-]?[([123456789]\d*[eE][123456789]\d*)([([123456789]\d*\.)(\.\d+)])](\d*)?([eE][\-\+]?[123456789]\d*)?")
 # FA_from_regex(r"[+-]?([123456789]\d*[eE][123456789]\d*|(([123456789]\d*\.)|(\.\d+))(\d*)?([eE][\-\+]?[123456789]\d*)?)")
 # [+-]?(
