@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pprint import pprint
+from copy import deepcopy
 
 
 @dataclass
@@ -13,17 +14,18 @@ class Node:
 
 
 @dataclass
-class FAGroup:
-    inputs: list
-    outputs: list
+class FA:
+    inputs: set
+    outputs: set
     nodes: list
+    can_zero: bool = False
+    next: set = field(default_factory=lambda: set())
 
 
 @dataclass
 class FANode:
     value: set
     next: set
-    can_zero: bool = False
 
 
 expression: list = []
@@ -141,6 +143,100 @@ def parse_group(must_br=True) -> Node:
     return result
 
 
+def FA_from_node(node: Node) -> FA:
+    if type(node.data) is list:
+        return FA_from_group(node)
+    return FA_from_set(node)
+
+
+def FA_from_set(node: Node) -> FA:
+    if type(node.data) is str:
+        return FA({0}, {0}, [FANode(set(node.data), set())])
+
+
+def FA_from_group(node: Node) -> FA:
+    result = FA(set(), set(), [])
+
+    fas = []
+
+    for n in node.data:
+        cnodeo = FA_from_node(n)
+
+        if n.max == -1:
+            count = n.min if n.min != 0 else 1
+            for i in range(count):
+                fas.append(deepcopy(cnodeo))
+            if n.min == 0:
+                fas[-1].can_zero = True
+
+            for i in fas[-1].outputs:
+                fas[-1].nodes[i].next.update(fas[-1].inputs)
+        else:
+            for i in range(n.max):
+                cnode = deepcopy(cnodeo)
+                if i >= n.min:
+                    cnode.can_zero = True
+                fas.append(cnode)
+
+    offset = 0
+
+    for fa in fas:
+        fa.inputs = set(i + offset for i in fa.inputs)
+        fa.outputs = set(i + offset for i in fa.outputs)
+
+        for node in fa.nodes:
+            node.next = set(i + offset for i in node.next)
+
+        offset += len(fa.nodes)
+
+    for id, fa in enumerate(fas):
+        for i in range(id + 1, len(fas)):
+            if fas[i].nodes != fa.nodes:
+                fa.next.update([i])
+            elif i - id == 1:
+                fa.next.update([i])
+
+            if fas[i].can_zero is False:
+                break
+
+    pprint(fas)
+
+    for fa in fas:
+        result.inputs.update(fa.inputs)
+
+        if fa.can_zero is False:
+            break
+
+    outputs = set()
+    queue = {len(fas)-1}
+
+    while len(queue) > 0:
+        fa = queue.pop()
+
+        outputs.update([fa])
+
+        if not fas[fa].can_zero:
+            continue
+
+        for id, i in enumerate(fas):
+            if fa not in i.next:
+                continue
+            if id not in outputs:
+                queue.update([id])
+
+    for i in outputs:
+        result.outputs.update(fas[i].outputs)
+
+    for i in fas:
+        result.nodes += i.nodes
+
+        for j in i.outputs:
+            for m in i.next:
+                result.nodes[j].next.update(fas[m].inputs)
+
+    return result
+
+
 def FA_from_regex(ex: str) -> list:
     global expression
 
@@ -150,8 +246,14 @@ def FA_from_regex(ex: str) -> list:
 
     pprint(node)
 
+    fanode = FA_from_group(node)
 
-FA_from_regex(r"[+-]?[([123456789]\d*[eE][123456789]\d*)([([123456789]\d*\.)(\.\d+)])](\d*)?([eE][\-\+]?[123456789]\d*)?")
+    pprint(fanode)
+
+
+# FA_from_regex(r"123(abc)+456")
+FA_from_regex(r"12{2,4}3")
+# FA_from_regex(r"[+-]?[([123456789]\d*[eE][123456789]\d*)([([123456789]\d*\.)(\.\d+)])](\d*)?([eE][\-\+]?[123456789]\d*)?")
 # FA_from_regex(r"[+-]?([123456789]\d*[eE][123456789]\d*|(([123456789]\d*\.)|(\.\d+))(\d*)?([eE][\-\+]?[123456789]\d*)?)")
 # [+-]?(
 #       [123456789]\d*[eE][123456789]\d* |
