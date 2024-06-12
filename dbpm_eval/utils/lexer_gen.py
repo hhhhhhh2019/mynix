@@ -3,13 +3,13 @@ from pprint import pprint
 
 
 regexes = {
-    "INHERIT": r"ina",
-    "IMPORT": r"inb",
+    "INHERIT": r"inherit",
+    "IMPORT": r"import",
     "IF": r"if",
-    # "ELSE": r"else",
-    # "THEN": r"then",
-    # "LET": r"let",
-    # "IN": r"in",
+    "ELSE": r"else",
+    "THEN": r"then",
+    "LET": r"let",
+    "IN": r"in",
     # "NUMBER": r"\d+",
 }
 
@@ -83,7 +83,7 @@ def collapse(rid):
                 fa.outputs.remove(i)
                 fa.outputs.update([len(fa.nodes)-1])
 
-                fa.nodes[-1].output = fa[i].output
+                fa.nodes[-1].output = fa.nodes[i].output
 
             for n in fa.nodes:
                 if i not in n.next:
@@ -100,9 +100,6 @@ def collapse(rid):
         result |= collapse(i)
 
     return result
-
-
-pprint(fa)
 
 
 while collapse(0):
