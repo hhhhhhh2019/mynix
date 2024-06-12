@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from pprint import pprint
 from copy import deepcopy
 
 
@@ -14,19 +13,21 @@ class Node:
 
 
 @dataclass
-class FA:
-    inputs: set
-    outputs: set
-    nodes: list
-    can_zero: bool = False
-    next: set = field(default_factory=lambda: set())
+class FANode:
+    value: set[str]
+    next: set[int]
+    output: str = ""  # using in lexer_gen.py
+    using: bool = False  # using in lexer_gen.py
     id: int = 0
 
 
 @dataclass
-class FANode:
-    value: set
-    next: set
+class FA:
+    inputs: set[int]
+    outputs: set[int]
+    nodes: list[FANode]
+    can_zero: bool = False
+    next: set[int] = field(default_factory=lambda: set())
 
 
 expression: list = []
@@ -225,8 +226,6 @@ def FA_from_group(node: Node) -> FA:
             if fas[i].can_zero is False:
                 break
 
-    pprint(fas)
-
     for fa in fas:
         result.inputs.update(fa.inputs)
 
@@ -276,7 +275,7 @@ def FA_from_regex(ex: str) -> list:
 
 
 # FA_from_regex(r"(123)?(abc){1,4}456")
-FA_from_regex(r"[a(123)]+hq")
+# pprint(FA_from_regex(r"[a(123)]+hq"))
 # FA_from_regex(r"[+-]?[([123456789]\d*[eE][123456789]\d*)([([123456789]\d*\.)(\.\d+)])](\d*)?([eE][\-\+]?[123456789]\d*)?")
 # FA_from_regex(r"[+-]?([123456789]\d*[eE][123456789]\d*|(([123456789]\d*\.)|(\.\d+))(\d*)?([eE][\-\+]?[123456789]\d*)?)")
 # [+-]?(
