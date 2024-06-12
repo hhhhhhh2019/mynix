@@ -3,9 +3,9 @@ from pprint import pprint
 
 
 regexes = {
-    "INHERIT": r"in",
-    "IMPORT": r"im",
-    # "IF": r"if",
+    "INHERIT": r"ina",
+    "IMPORT": r"inb",
+    "IF": r"if",
     # "ELSE": r"else",
     # "THEN": r"then",
     # "LET": r"let",
@@ -19,6 +19,9 @@ fas = {}
 
 for i in regexes:
     fas[i] = FA_from_regex(regexes[i])
+
+    for o in fas[i].outputs:
+        fas[i].nodes[o].output = i
 
 
 fa = FA(set(), set(), [])
@@ -63,9 +66,13 @@ def collapse(rid):
 
             chars[c].update([i])
 
+    found = False
+
     for c in chars:
         if len(chars[c]) < 2:
             continue
+
+        found = True
 
         fa.nodes.append(FANode(set(c), set()))
 
@@ -76,7 +83,7 @@ def collapse(rid):
                 fa.outputs.remove(i)
                 fa.outputs.update([len(fa.nodes)-1])
 
-                fa.nodes[-1].value = fa[i].value
+                fa.nodes[-1].output = fa[i].output
 
             for n in fa.nodes:
                 if i not in n.next:
@@ -84,8 +91,22 @@ def collapse(rid):
                 n.next.remove(i)
                 n.next.update([len(fa.nodes)-1])
 
+    if found:
+        return 1
 
-collapse(0)
+    result = False
+
+    for i in fa.nodes[rid].next:
+        result |= collapse(i)
+
+    return result
+
+
+pprint(fa)
+
+
+while collapse(0):
+    pass
 
 
 for i in fa.nodes:
@@ -111,16 +132,22 @@ for node in fa.nodes:
     if not node.using:
         continue
 
+    new_next = set()
+
     for j in node.next:
-        node.next.remove(j)
-        node.next.update([fa.nodes[j].id])
+        new_next.update([fa.nodes[j].id])
+
+    node.next = new_next
 
     new_nodes.append(node)
 
 
+new_outputs = set()
+
 for i in fa.outputs:
-    fa.outputs.remove(i)
-    fa.outputs.update([fa.nodes[i].id])
+    new_outputs.update([fa.nodes[i].id])
+
+fa.outputs = new_outputs
 
 
 fa.nodes = new_nodes
