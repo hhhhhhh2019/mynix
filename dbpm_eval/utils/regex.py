@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from copy import deepcopy
+from string import ascii_letters
 
 
 @dataclass
@@ -14,7 +15,7 @@ class Node:
 
 @dataclass
 class FANode:
-    value: set[str]
+    value: str
     next: set[int]
     output: str = ""  # using in lexer_gen.py
     using: bool = False  # using in lexer_gen.py
@@ -95,6 +96,8 @@ def parse_set() -> Node:
                 result.data.update(set("0123456789"))
             elif c == 's':
                 result.data.update(set(" \n\r\t"))
+            elif c == 'w':
+                result.data.update(set(ascii_letters))
         else:
             result.data.add(c)
 
@@ -132,6 +135,8 @@ def parse_group(must_br=True) -> Node:
                 result.data.append(Node(1, 1, set("0123456789")))
             elif c == 's':
                 result.data.append(Node(1, 1, set(" \t\n\r")))
+            elif c == 'w':
+                result.data.append(Node(1, 1, set(ascii_letters)))
 
         else:
             result.data.append(Node(1, 1, c))
@@ -153,13 +158,13 @@ def FA_from_node(node: Node) -> FA:
 
 def FA_from_set(node: Node) -> FA:
     if type(node.data) is str:
-        return FA({0}, {0}, [FANode(set(node.data), set())])
+        return FA({0}, {0}, [FANode(node.data, set())])
 
     result = FA(set(), set(), [])
 
     for i in node.data:
         if type(i) is str:
-            result.nodes.append(FANode(set(i), set()))
+            result.nodes.append(FANode(i, set()))
             result.inputs.update([len(result.nodes)-1])
             result.outputs.update([len(result.nodes)-1])
         else:

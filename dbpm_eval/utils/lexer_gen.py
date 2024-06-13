@@ -2,14 +2,27 @@ from regex import FA_from_regex, FA, FANode
 from pprint import pprint
 
 
+def FA_to_dot(fa):
+    print("digraph 1 {")
+
+    for i in fa.nodes:
+        print(f"{i.id} [label=\"{i.value}\"]")
+        print(f"{i.id} -> {'{'}{",".join(map(str, i.next))}{'}'}")
+
+    print("}")
+
+
 regexes = {
-    "INHERIT": r"inherit",
-    "IMPORT": r"import",
-    "IF": r"if",
-    "ELSE": r"else",
-    "THEN": r"then",
-    "LET": r"let",
-    "IN": r"in",
+    "UNDEFINED": (r"[\w][\w\d]*", False),
+    "A": (r"abc", True),
+
+    # "INHERIT": (r"inherit", True),
+    # "IMPORT":  (r"import",  True),
+    # "IF":      (r"if",      True),
+    # "ELSE":    (r"else",    True),
+    # "THEN":    (r"then",    True),
+    # "LET":     (r"let",     True),
+    # "IN":      (r"in",      True),
     # "NUMBER": r"\d+",
 }
 
@@ -18,7 +31,7 @@ fas = {}
 
 
 for i in regexes:
-    fas[i] = FA_from_regex(regexes[i])
+    fas[i] = FA_from_regex(regexes[i][0])
 
     for o in fas[i].outputs:
         fas[i].nodes[o].output = i
@@ -60,11 +73,12 @@ def collapse(rid):
     chars = {}
 
     for i in fa.nodes[rid].next:
-        for c in fa.nodes[i].value:
-            if c not in chars:
-                chars[c] = set()
+        c = fa.nodes[i].value
 
-            chars[c].update([i])
+        if c not in chars:
+            chars[c] = set()
+
+        chars[c].update([i])
 
     found = False
 
@@ -74,7 +88,7 @@ def collapse(rid):
 
         found = True
 
-        fa.nodes.append(FANode(set(c), set()))
+        fa.nodes.append(FANode(c, set()))
 
         for i in chars[c]:
             fa.nodes[-1].next.update(fa.nodes[i].next)
@@ -94,16 +108,20 @@ def collapse(rid):
     if found:
         return 1
 
-    result = False
-
-    for i in fa.nodes[rid].next:
-        result |= collapse(i)
-
-    return result
+    return 0
 
 
-while collapse(0):
-    pass
+queue = [0]
+checked = set()
+
+while len(queue) > 0:
+    id = queue.pop(0)
+
+    while collapse(id):
+        pass
+
+    checked.update([id])
+    queue += list(fa.nodes[id].next - checked)
 
 
 for i in fa.nodes:
@@ -150,22 +168,25 @@ fa.outputs = new_outputs
 fa.nodes = new_nodes
 
 
-config = [[-1] * 257 for _ in fa.nodes]
+FA_to_dot(fa)
+# pprint(fa)
 
 
-for node in fa.nodes:
-    if node.output != '':
-        for i in range(256):  # why vanilla python can't arr.fill(val)?
-            config[node.id][i] = 0
-
-        config[node.id][256] = node.output
-
-    for child in node.next:
-        for c in fa.nodes[child].value:
-            config[node.id][ord(c)] = child
-
-
-print(f"static int rules[{len(fa.nodes)}][257] = {'{'}")
-for i in config:
-    print(f"{'{'}{",".join(map(str, i))}{'}'},")
-print("};")
+# config = [[-1] * 257 for _ in fa.nodes]
+#
+#
+# for node in fa.nodes:
+#     if node.output != '':
+#         for i in range(256):  # why vanilla python can't arr.fill(val)?
+#             config[node.id][i] = 0
+#
+#         config[node.id][256] = node.output
+#
+#     for child in node.next:
+#         config[node.id][ord(fa.nodes[child].value)] = child
+#
+#
+# print(f"static int rules[{len(fa.nodes)}][257] = {'{'}")
+# for i in config:
+#     print(f"{'{'}{",".join(map(str, i))}{'}'},")
+# print("};")
