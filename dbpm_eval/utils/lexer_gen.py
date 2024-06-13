@@ -150,4 +150,22 @@ fa.outputs = new_outputs
 fa.nodes = new_nodes
 
 
-pprint(fa)
+config = [[-1] * 257 for _ in fa.nodes]
+
+
+for node in fa.nodes:
+    if node.output != '':
+        for i in range(256):  # why vanilla python can't arr.fill(val)?
+            config[node.id][i] = 0
+
+        config[node.id][256] = node.output
+
+    for child in node.next:
+        for c in fa.nodes[child].value:
+            config[node.id][ord(c)] = child
+
+
+print(f"static int rules[{len(fa.nodes)}][257] = {'{'}")
+for i in config:
+    print(f"{'{'}{",".join(map(str, i))}{'}'},")
+print("};")
