@@ -19,7 +19,8 @@ class FANode:
     next: set[int]
     output: str = ""  # using in lexer_gen.py
     using: bool = False  # using in lexer_gen.py
-    id: int = 0
+    can_undefined: bool = False  # using in lexer_gen.py
+    id: int = 0  # using in lexer_gen.py
 
 
 @dataclass

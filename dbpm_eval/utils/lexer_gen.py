@@ -1,5 +1,6 @@
 from regex import FA_from_regex, FA, FANode
 from pprint import pprint
+from string import ascii_letters, digits
 
 
 def FA_to_dot(fa):
@@ -13,8 +14,9 @@ def FA_to_dot(fa):
 
 
 regexes = {
-    "UNDEFINED": (r"[\w][\w\d]*", False),
-    "A": (r"abc", True),
+    "IF": (r"if", True),
+    "INA": (r"ina", True),
+    "INB": (r"inb", True),
 
     # "INHERIT": (r"inherit", True),
     # "IMPORT":  (r"import",  True),
@@ -36,11 +38,14 @@ for i in regexes:
     for o in fas[i].outputs:
         fas[i].nodes[o].output = i
 
+    for node in fas[i].nodes:
+        node.can_undefined = regexes[i][1]
+
 
 fa = FA(set(), set(), [])
 
 
-offset = 1
+offset = 2
 
 for f in fas:
     fas[f].inputs = set(i + offset for i in fas[f].inputs)
@@ -58,7 +63,7 @@ for f in fas:
     offset += len(fas[f].nodes)
 
 
-fa = FA({0}, set(), [FANode("", set())])
+fa = FA({0}, set(), [FANode("", set(), can_undefined=True), FANode("", set(), using=True)])
 
 
 for f in fas:
@@ -168,25 +173,36 @@ fa.outputs = new_outputs
 fa.nodes = new_nodes
 
 
-FA_to_dot(fa)
+# FA_to_dot(fa)
 # pprint(fa)
 
 
-# config = [[-1] * 257 for _ in fa.nodes]
-#
-#
-# for node in fa.nodes:
-#     if node.output != '':
-#         for i in range(256):  # why vanilla python can't arr.fill(val)?
-#             config[node.id][i] = 0
-#
-#         config[node.id][256] = node.output
-#
-#     for child in node.next:
-#         config[node.id][ord(fa.nodes[child].value)] = child
-#
-#
-# print(f"static int rules[{len(fa.nodes)}][257] = {'{'}")
-# for i in config:
-#     print(f"{'{'}{",".join(map(str, i))}{'}'},")
-# print("};")
+config = [[-1] * 257 for _ in fa.nodes]
+
+
+for node in fa.nodes:
+    if node.can_undefined:
+        for i in ascii_letters:
+            config[node.id][ord(i)] = 1
+
+    if node.output != '':
+        for i in range(256):  # why vanilla python can't arr.fill(val)?
+            config[node.id][i] = 0
+
+        config[node.id][256] = node.output
+
+    for child in node.next:
+        config[node.id][ord(fa.nodes[child].value)] = child
+
+for i in range(256):
+    config[1][i] = 0
+config[1][256] = "UNDEFINED"
+
+for i in ascii_letters + digits:
+    config[1][ord(i)] = 1
+
+
+print(f"static int rules[{len(fa.nodes)}][257] = {'{'}")
+for i in config:
+    print(f"{'{'}{",".join(map(str, i))}{'}'},")
+print("};")
